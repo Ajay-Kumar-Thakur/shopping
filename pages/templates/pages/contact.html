@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Contact Us — MyShop</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      /* Clean, professional white/light theme palette */
+      --bg-main:     #ffffff;
+      --bg-sec:      #f7f9fa;
+      --text-main:   #1a1a1a;
+      --text-soft:   #666666;
+      --accent:      #111111;
+      --accent-hover:#333333;
+      --gold:        #b89742;
+      --border:      rgba(0, 0, 0, 0.08);
+      --card-bg:     #ffffff;
+      --card-bg-h:   #fcfcfc;
+      --red:         #d93025;
+      --green-success:#2e8b62;
+    }
+
+    html, body {
+      min-height: 100%;
+      font-family: 'Jost', sans-serif;
+      color: var(--text-main);
+      background: var(--bg-main);
+    }
+
+    /* ── Background ── */
+    .bg-layer {
+      position: fixed; inset: 0; z-index: 0;
+      background: var(--bg-main);
+    }
+    
+    /* Subtle standard grid overlay */
+    .bg-layer::after {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(0,0,0,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,0,0,0.02) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+
+    header, main, footer { position: relative; z-index: 1; }
+
+    /* ── Nav ── */
+    header {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 100;
+    }
+
+    .nav {
+      max-width: 1100px; margin: 0 auto;
+      padding: 16px 48px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+
+    .brand {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 26px; font-weight: 400;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--accent); text-decoration: none;
+    }
+
+    .nav-links { display: flex; align-items: center; gap: 28px; list-style: none; }
+
+    .nav-links a {
+      color: var(--text-soft); text-decoration: none;
+      font-size: 12px; font-weight: 500;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover, .nav-links a.active { color: var(--accent); }
+
+    /* ── Page hero ── */
+    .page-hero {
+      text-align: center;
+      padding: 72px 48px 56px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .page-eyebrow {
+      display: inline-flex; align-items: center; gap: 12px;
+      font-size: 10px; font-weight: 500;
+      letter-spacing: 0.30em; text-transform: uppercase;
+      color: var(--text-soft); margin-bottom: 20px;
+      animation: fadeUp 0.5s ease 0.1s both;
+    }
+    
+    .page-eyebrow::before, .page-eyebrow::after {
+      content: ''; display: inline-block;
+      width: 24px; height: 1px;
+      background: var(--text-soft); opacity: 0.4;
+    }
+
+    .page-hero h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 52px; font-weight: 400; line-height: 1.1;
+      color: var(--text-main); margin-bottom: 14px;
+      animation: fadeUp 0.5s ease 0.2s both;
+    }
+    .page-hero h1 em { font-style: italic; color: var(--gold); }
+
+    .page-hero p {
+      font-size: 15px; font-weight: 400;
+      color: var(--text-soft); line-height: 1.7;
+      animation: fadeUp 0.5s ease 0.3s both;
+    }
+
+    /* ── Main layout ── */
+    main {
+      max-width: 1100px; margin: 0 auto;
+      padding: 64px 48px 80px;
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      gap: 64px;
+      align-items: start;
+    }
+
+    /* ── Contact form card ── */
+    .form-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 40px;
+      animation: fadeUp 0.5s ease 0.2s both;
+    }
+
+    .form-card h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 28px; font-weight: 600;
+      color: var(--text-main); margin-bottom: 6px;
+    }
+
+    .form-card .form-sub {
+      font-size: 13px; font-weight: 400;
+      color: var(--text-soft); margin-bottom: 32px;
+    }
+
+    /* Django messages */
+    .messages { list-style: none; margin-bottom: 20px; }
+    .messages li {
+      padding: 12px 16px; border-radius: 4px;
+      font-size: 13px; font-weight: 500;
+      background: rgba(46, 139, 98, 0.08);
+      border: 1px solid rgba(46, 139, 98, 0.2);
+      color: var(--green-success);
+    }
+    .messages li.error {
+      background: rgba(217, 48, 37, 0.08);
+      border-color: rgba(217, 48, 37, 0.2);
+      color: var(--red);
+    }
+
+    /* Form rows */
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    .field { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+
+    .field label {
+      font-size: 10px; font-weight: 600;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--text-main);
+    }
+
+    .field .form-input,
+    .form-card input,
+    .form-card textarea,
+    .form-card select {
+      background: var(--bg-sec);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 13px 16px;
+      color: var(--text-main);
+      font-family: 'Jost', sans-serif;
+      font-size: 14px; font-weight: 400;
+      outline: none; width: 100%;
+      transition: all 0.2s;
+    }
+
+    .form-card input:focus,
+    .form-card textarea:focus {
+      border-color: var(--accent);
+      background: var(--bg-main);
+      box-shadow: 0 0 0 3px rgba(0,0,0,0.04);
+    }
+
+    .form-card input::placeholder,
+    .form-card textarea::placeholder { color: #a0a0a0; }
+
+    /* error list from Django */
+    .errorlist {
+      list-style: none; margin-top: 4px;
+      font-size: 11px; color: var(--red);
+    }
+
+    .btn-submit {
+      width: 100%; padding: 15px;
+      background: var(--accent);
+      color: var(--bg-main); border: none; border-radius: 3px;
+      font-family: 'Jost', sans-serif;
+      font-size: 12px; font-weight: 500;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      cursor: pointer; margin-top: 8px;
+      transition: all 0.22s;
+    }
+    
+    .btn-submit:hover {
+      background: var(--accent-hover);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+      transform: translateY(-2px);
+    }
+
+    /* ── Info sidebar ── */
+    .info-side { display: flex; flex-direction: column; gap: 20px; animation: fadeUp 0.5s ease 0.3s both; }
+
+    .info-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 28px;
+      position: relative; overflow: hidden;
+    }
+
+    /* Subtle corner accent fold */
+    .info-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0;
+      width: 0; height: 0; border-style: solid;
+      border-width: 24px 24px 0 0;
+      border-color: var(--border) transparent transparent transparent;
+    }
+
+    .info-card-icon {
+      width: 40px; height: 40px;
+      background: var(--bg-sec);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 14px;
+    }
+
+    .info-card-icon svg {
+      width: 18px; height: 18px;
+      stroke: var(--accent); fill: none;
+      stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    .info-card h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px; font-weight: 600;
+      color: var(--text-main); margin-bottom: 8px;
+    }
+
+    .info-card p {
+      font-size: 13px; font-weight: 400;
+      color: var(--text-soft); line-height: 1.7;
+    }
+
+    .info-card a {
+      color: var(--accent); text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    
+    .info-card a:hover { color: var(--text-soft); }
+
+    /* Hours table */
+    .hours-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    .hours-table tr { border-bottom: 1px solid var(--border); }
+    .hours-table tr:last-child { border-bottom: none; }
+    .hours-table td { padding: 10px 0; font-size: 13px; font-weight: 400; color: var(--text-soft); }
+    .hours-table td:last-child { text-align: right; color: var(--text-main); font-weight: 500; }
+
+    /* ── Footer ── */
+    footer {
+      position: relative; z-index: 1;
+      background: var(--bg-main);
+      border-top: 1px solid var(--border);
+    }
+    
+    .footer-inner {
+      max-width: 1100px; margin: 0 auto;
+      padding: 28px 48px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    
+    .footer-brand {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 18px; font-weight: 600;
+      letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--accent);
+    }
+    
+    .footer-copy {
+      font-size: 11px; font-weight: 400;
+      letter-spacing: 0.10em; color: var(--text-soft); opacity: 0.6;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 768px) {
+      .nav { padding: 14px 20px; }
+      .nav-links { display: none; }
+      .page-hero { padding: 48px 20px 36px; }
+      .page-hero h1 { font-size: 36px; }
+      main { grid-template-columns: 1fr; gap: 32px; padding: 36px 20px 60px; }
+      .form-row { grid-template-columns: 1fr; }
+      .footer-inner { flex-direction: column; gap: 8px; text-align: center; padding: 24px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-layer"></div>
+
+  <header>
+    <nav class="nav">
+      <a href="{% url 'index' %}" class="brand">MyShop</a>
+      <ul class="nav-links">
+        <li><a href="{% url 'index' %}">Home</a></li>
+        <li><a href="{% url 'product_list' %}">Shop</a></li>
+        <li><a href="{% url 'faq' %}">FAQ</a></li>
+        <li><a href="{% url 'contact' %}">Contact</a></li>
+        <li><a href="{% url 'testimonials' %}">Testimonials</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- Hero -->
+  <div class="page-hero">
+    <div class="page-eyebrow">Get in Touch</div>
+    <h1>We'd love to <em>hear from you</em></h1>
+    <p>Have a question about your order? We're here to help.</p>
+  </div>
+
+  <main>
+
+    <!-- Contact Form -->
+    <div class="form-card">
+      <h2>Send us a Message</h2>
+      <p class="form-sub">Fill out the form below and we'll respond within 24 hours.</p>
+
+      {% if messages %}
+      <ul class="messages">
+        {% for message in messages %}
+        <li class="{% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+
+      <form method="post" novalidate>
+        {% csrf_token %}
+
+        <div class="form-row">
+          <div class="field">
+            <label>Full Name *</label>
+            {{ form.name }}
+            {% if form.name.errors %}<ul class="errorlist">{% for e in form.name.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+          </div>
+          <div class="field">
+            <label>Email Address *</label>
+            {{ form.email }}
+            {% if form.email.errors %}<ul class="errorlist">{% for e in form.email.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Phone Number</label>
+          {{ form.phone }}
+        </div>
+
+        <div class="field">
+          <label>Subject *</label>
+          {{ form.subject }}
+          {% if form.subject.errors %}<ul class="errorlist">{% for e in form.subject.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+        </div>
+
+        <div class="field">
+          <label>Message *</label>
+          {{ form.message }}
+          {% if form.message.errors %}<ul class="errorlist">{% for e in form.message.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+        </div>
+
+        <button type="submit" class="btn-submit">Send Message →</button>
+      </form>
+    </div>
+
+    <!-- Info Sidebar -->
+    <div class="info-side">
+
+      <div class="info-card">
+        <div class="info-card-icon">
+          <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </div>
+        <h3>Visit Our Store</h3>
+        <p>Thamel, Kathmandu<br>Bagmati Province, Nepal</p>
+      </div>
+
+      <div class="info-card">
+        <div class="info-card-icon">
+          <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2A19.79 19.79 0 0112 19a19.5 19.5 0 01-5-3.07A19.79 19.79 0 013.08 11 19.79 19.79 0 011 4.18 2 2 0 012.96 2h3a2 2 0 012 1.72c.13.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L7.09 9.91A16 16 0 0013 15.91l1.27-1.27a2 2 0 012.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0121 17v-.08z"/></svg>
+        </div>
+        <h3>Call or Email</h3>
+        <p>
+          <a href="tel:+9771234567">+977 1 234 567</a><br>
+          <a href="mailto:hello@myshop.com">hello@myshop.com</a>
+        </p>
+      </div>
+
+      <div class="info-card">
+        <div class="info-card-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <h3>Business Hours</h3>
+        <table class="hours-table">
+          <tr><td>Monday — Friday</td><td>9:00 AM – 6:00 PM</td></tr>
+          <tr><td>Saturday</td><td>10:00 AM – 4:00 PM</td></tr>
+          <tr><td>Sunday</td><td>Closed</td></tr>
+        </table>
+      </div>
+
+      <div class="info-card">
+        <div class="info-card-icon">
+          <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        </div>
+        <h3>Quick Response</h3>
+        <p>We typically reply within <strong style="color:var(--accent)">2–4 hours</strong> during business hours. For urgent matters, please call us directly.</p>
+      </div>
+
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <span class="footer-brand">MyShop</span>
+       <ul class="nav-links">
+        <li><a href="{% url 'index' %}">Home</a></li>
+        <li><a href="{% url 'product_list' %}">Shop</a></li>
+        <li><a href="{% url 'faq' %}">FAQ</a></li>
+        <li><a href="{% url 'contact' %}">Contact</a></li>
+        <li><a href="{% url 'testimonials' %}">Testimonials</a></li>
+      </ul>
+      <span class="footer-copy">&copy; 2026 MyShop &nbsp;·&nbsp; All rights reserved</span>
+    </div>
+  </footer>
+
+</body>
+</html>

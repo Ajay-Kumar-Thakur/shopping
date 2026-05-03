@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FAQ — MyShop</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      /* Clean, professional white/light theme palette */
+      --bg-main:     #ffffff;
+      --bg-sec:      #f7f9fa;
+      --text-main:   #1a1a1a;
+      --text-soft:   #666666;
+      --accent:      #111111;
+      --accent-hover:#333333;
+      --gold:        #b89742; /* Kept for subtle premium touch */
+      --border:      rgba(0, 0, 0, 0.08);
+      --card-bg:     #ffffff;
+      --card-bg-h:   #fcfcfc;
+    }
+
+    html, body {
+      min-height: 100%;
+      font-family: 'Jost', sans-serif;
+      color: var(--text-main);
+      background: var(--bg-main);
+    }
+
+    /* ── Background ── */
+    .bg-layer {
+      position: fixed; inset: 0; z-index: 0;
+      background: var(--bg-main);
+    }
+    
+    /* Subtle standard grid overlay */
+    .bg-layer::after {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(0,0,0,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,0,0,0.02) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+
+    header, main, footer, .page-hero { position: relative; z-index: 1; }
+
+    /* ── Nav ── */
+    header {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 100;
+    }
+
+    .nav {
+      max-width: 900px; margin: 0 auto;
+      padding: 16px 48px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+
+    .brand {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 26px; font-weight: 400;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--accent); text-decoration: none;
+    }
+
+    .nav-links { display: flex; gap: 28px; list-style: none; }
+    .nav-links a {
+      color: var(--text-soft); text-decoration: none;
+      font-size: 12px; font-weight: 500;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover, .nav-links a.active { color: var(--accent); }
+
+    /* ── Page hero ── */
+    .page-hero {
+      text-align: center;
+      padding: 72px 48px 56px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .page-eyebrow {
+      display: inline-flex; align-items: center; gap: 12px;
+      font-size: 10px; font-weight: 500;
+      letter-spacing: 0.30em; text-transform: uppercase;
+      color: var(--text-soft); margin-bottom: 20px;
+      animation: fadeUp 0.5s ease 0.1s both;
+    }
+    
+    .page-eyebrow::before, .page-eyebrow::after {
+      content: ''; display: inline-block;
+      width: 24px; height: 1px;
+      background: var(--text-soft); opacity: 0.4;
+    }
+
+    .page-hero h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 52px; font-weight: 400; line-height: 1.1;
+      color: var(--text-main); margin-bottom: 14px;
+      animation: fadeUp 0.5s ease 0.2s both;
+    }
+    
+    .page-hero h1 em { font-style: italic; color: var(--gold); }
+
+    .page-hero p {
+      font-size: 15px; font-weight: 400;
+      color: var(--text-soft); line-height: 1.7;
+      animation: fadeUp 0.5s ease 0.3s both;
+    }
+
+    /* ── Search bar ── */
+    .faq-search {
+      max-width: 500px; margin: 32px auto 0;
+      position: relative;
+      animation: fadeUp 0.5s ease 0.4s both;
+    }
+
+    .faq-search input {
+      width: 100%;
+      background: var(--bg-sec);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      padding: 14px 50px 14px 24px;
+      color: var(--text-main);
+      font-family: 'Jost', sans-serif;
+      font-size: 14px; font-weight: 400;
+      outline: none;
+      transition: all 0.2s;
+    }
+    
+    .faq-search input:focus {
+      border-color: var(--accent);
+      background: var(--bg-main);
+      box-shadow: 0 0 0 3px rgba(0,0,0,0.04);
+    }
+    
+    .faq-search input::placeholder { color: #a0a0a0; }
+
+    .faq-search-icon {
+      position: absolute; right: 20px; top: 50%;
+      transform: translateY(-50%);
+      width: 18px; height: 18px;
+      stroke: var(--text-soft); fill: none;
+      stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    /* ── Main ── */
+    main {
+      max-width: 900px; margin: 0 auto;
+      padding: 56px 48px 80px;
+    }
+
+    /* ── Category filter pills ── */
+    .category-filters {
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;
+      margin-bottom: 48px;
+      animation: fadeUp 0.5s ease 0.2s both;
+    }
+
+    .filter-pill {
+      padding: 8px 22px;
+      background: var(--bg-main);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      color: var(--text-soft);
+      font-size: 12px; font-weight: 500;
+      letter-spacing: 0.10em; text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .filter-pill:hover, .filter-pill.active {
+      background: var(--accent);
+      color: var(--bg-main);
+      border-color: var(--accent);
+    }
+
+    /* ── FAQ group ── */
+    .faq-group { margin-bottom: 40px; animation: fadeUp 0.5s ease both; }
+
+    .faq-group-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 14px; font-weight: 600;
+      letter-spacing: 0.20em; text-transform: uppercase;
+      color: var(--text-main);
+      display: flex; align-items: center; gap: 16px;
+      margin-bottom: 20px;
+    }
+    
+    .faq-group-title::after {
+      content: ''; flex: 1; height: 1px;
+      background: var(--border);
+    }
+
+    /* ── Accordion item ── */
+    .faq-item {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      margin-bottom: 8px;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    
+    .faq-item:hover { border-color: rgba(0,0,0,0.15); }
+    .faq-item.open { border-color: var(--accent); }
+
+    .faq-question {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px;
+      cursor: pointer;
+      gap: 16px;
+      user-select: none;
+    }
+
+    .faq-question-text {
+      font-size: 15px; font-weight: 500;
+      color: var(--text-main); line-height: 1.5;
+      transition: color 0.2s;
+    }
+
+    .faq-item.open .faq-question-text { color: var(--accent); }
+
+    .faq-icon {
+      width: 28px; height: 28px; flex-shrink: 0;
+      background: var(--bg-sec);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.3s;
+    }
+
+    .faq-item.open .faq-icon {
+      background: var(--accent);
+      border-color: var(--accent);
+      transform: rotate(45deg);
+    }
+
+    .faq-icon svg {
+      width: 12px; height: 12px;
+      stroke: var(--text-main); fill: none;
+      stroke-width: 2; stroke-linecap: round;
+      transition: stroke 0.3s;
+    }
+    
+    .faq-item.open .faq-icon svg { stroke: var(--bg-main); }
+
+    .faq-answer {
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1), padding 0.3s ease;
+      padding: 0 24px;
+    }
+    
+    .faq-item.open .faq-answer {
+      max-height: 400px;
+      padding: 0 24px 22px;
+    }
+
+    .faq-answer p {
+      font-size: 14px; font-weight: 400;
+      color: var(--text-soft); line-height: 1.75;
+      border-top: 1px solid var(--border);
+      padding-top: 16px;
+    }
+
+    /* ── Empty state ── */
+    .faq-empty {
+      text-align: center; padding: 60px 20px;
+      display: none;
+    }
+    .faq-empty.visible { display: block; }
+    
+    .faq-empty p {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 24px; font-weight: 400;
+      color: var(--text-soft);
+    }
+
+    /* ── CTA strip ── */
+    .faq-cta {
+      background: var(--bg-sec);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 36px 40px;
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 24px;
+      margin-top: 56px;
+      animation: fadeUp 0.5s ease 0.5s both;
+    }
+
+    .faq-cta-text h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 26px; font-weight: 600;
+      color: var(--text-main); margin-bottom: 6px;
+    }
+
+    .faq-cta-text p {
+      font-size: 14px; font-weight: 400;
+      color: var(--text-soft);
+    }
+
+    .btn-contact {
+      padding: 14px 32px; white-space: nowrap;
+      background: var(--accent);
+      color: var(--bg-main); text-decoration: none;
+      font-size: 12px; font-weight: 500;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      border-radius: 3px; flex-shrink: 0;
+      transition: all 0.2s;
+    }
+    
+    .btn-contact:hover {
+      background: var(--accent-hover);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+      transform: translateY(-2px);
+    }
+
+    /* ── Footer ── */
+    footer {
+      position: relative; z-index: 1;
+      background: var(--bg-main);
+      border-top: 1px solid var(--border);
+    }
+    
+    .footer-inner {
+      max-width: 900px; margin: 0 auto;
+      padding: 28px 48px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    
+    .footer-brand {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 18px; font-weight: 600;
+      letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--accent);
+    }
+    
+    .footer-copy {
+      font-size: 11px; font-weight: 400; color: var(--text-soft); opacity: 0.6;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 768px) {
+      .nav { padding: 14px 20px; }
+      .nav-links { display: none; }
+      .page-hero { padding: 48px 20px 36px; }
+      .page-hero h1 { font-size: 36px; }
+      main { padding: 36px 20px 60px; }
+      .faq-cta { flex-direction: column; text-align: center; padding: 28px 20px; }
+      .footer-inner { flex-direction: column; gap: 8px; text-align: center; padding: 24px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-layer"></div>
+
+  <header>
+    <nav class="nav">
+      <a href="{% url 'index' %}" class="brand">MyShop</a>
+      <ul class="nav-links">
+        <li><a href="{% url 'index' %}">Home</a></li>
+        <li><a href="{% url 'product_list' %}">Shop</a></li>
+        <li><a href="{% url 'faq' %}">FAQ</a></li>
+        <li><a href="{% url 'contact' %}">Contact</a></li>
+        <li><a href="{% url 'testimonials' %}">Testimonials</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- Hero -->
+  <div class="page-hero">
+    <div class="page-eyebrow">Help Centre</div>
+    <h1>Frequently Asked <em>Questions</em></h1>
+    <p>Find answers to the most common questions about our products and services.</p>
+    <div class="faq-search">
+      <input type="text" id="faq-search-input" placeholder="Search questions..."/>
+      <svg class="faq-search-icon" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+    </div>
+  </div>
+
+  <main>
+
+    <!-- Category Filter Pills (auto-generated from Django categories) -->
+    {% if faqs %}
+    {% with categories=faqs|dictsort:"category" %}
+    <div class="category-filters">
+      <button class="filter-pill active" data-category="all">All</button>
+      {% for faq in faqs %}
+        {% if faq.category %}
+        <button class="filter-pill" data-category="{{ faq.category }}">{{ faq.category }}</button>
+        {% endif %}
+      {% endfor %}
+    </div>
+    {% endwith %}
+    {% endif %}
+
+    <!-- FAQ Items -->
+    <div id="faq-list">
+      {% regroup faqs by category as faq_groups %}
+      {% for group in faq_groups %}
+      <div class="faq-group" data-group="{{ group.grouper }}">
+        {% if group.grouper %}
+        <div class="faq-group-title">{{ group.grouper }}</div>
+        {% endif %}
+        {% for faq in group.list %}
+        <div class="faq-item" data-question="{{ faq.question|lower }}" data-category="{{ faq.category }}">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span class="faq-question-text">{{ faq.question }}</span>
+            <div class="faq-icon">
+              <svg viewBox="0 0 12 12">
+                <line x1="6" y1="2" x2="6" y2="10"/>
+                <line x1="2" y1="6" x2="10" y2="6"/>
+              </svg>
+            </div>
+          </div>
+          <div class="faq-answer">
+            <p>{{ faq.answer }}</p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% empty %}
+      <!-- Static fallback FAQs if database is empty -->
+      <div class="faq-group">
+        <div class="faq-group-title">Orders</div>
+        <div class="faq-item" data-question="how do i place an order" data-category="orders">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span class="faq-question-text">How do I place an order?</span>
+            <div class="faq-icon"><svg viewBox="0 0 12 12"><line x1="6" y1="2" x2="6" y2="10"/><line x1="2" y1="6" x2="10" y2="6"/></svg></div>
+          </div>
+          <div class="faq-answer"><p>Browse our shop, choose a product, fill in your details and click "Confirm Order". You will receive a confirmation email shortly after.</p></div>
+        </div>
+        <div class="faq-item" data-question="can i cancel my order" data-category="orders">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span class="faq-question-text">Can I cancel my order?</span>
+            <div class="faq-icon"><svg viewBox="0 0 12 12"><line x1="6" y1="2" x2="6" y2="10"/><line x1="2" y1="6" x2="10" y2="6"/></svg></div>
+          </div>
+          <div class="faq-answer"><p>You can cancel your order within 24 hours of placing it. After that, please contact our support team and we will do our best to assist you.</p></div>
+        </div>
+      </div>
+      <div class="faq-group">
+        <div class="faq-group-title">Shipping</div>
+        <div class="faq-item" data-question="how long does delivery take" data-category="shipping">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span class="faq-question-text">How long does delivery take?</span>
+            <div class="faq-icon"><svg viewBox="0 0 12 12"><line x1="6" y1="2" x2="6" y2="10"/><line x1="2" y1="6" x2="10" y2="6"/></svg></div>
+          </div>
+          <div class="faq-answer"><p>Standard delivery takes 3–5 business days within Nepal. Express delivery (1–2 days) is available at checkout for an additional fee.</p></div>
+        </div>
+        <div class="faq-item" data-question="do you offer free shipping" data-category="shipping">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span class="faq-question-text">Do you offer free shipping?</span>
+            <div class="faq-icon"><svg viewBox="0 0 12 12"><line x1="6" y1="2" x2="6" y2="10"/><line x1="2" y1="6" x2="10" y2="6"/></svg></div>
+          </div>
+          <div class="faq-answer"><p>Yes! We offer free standard shipping on all orders over NPR 2,000 within Kathmandu Valley. Orders outside the valley may have a small delivery charge.</p></div>
+        </div>
+      </div>
+      <div class="faq-group">
+        <div class="faq-group-title">Returns</div>
+        <div class="faq-item" data-question="what is your return policy" data-category="returns">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span class="faq-question-text">What is your return policy?</span>
+            <div class="faq-icon"><svg viewBox="0 0 12 12"><line x1="6" y1="2" x2="6" y2="10"/><line x1="2" y1="6" x2="10" y2="6"/></svg></div>
+          </div>
+          <div class="faq-answer"><p>We accept returns within 7 days of delivery for unused items in original packaging. Please contact us to initiate a return and we will arrange a pickup.</p></div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="faq-empty" id="faq-empty">
+      <p>No questions match your search.</p>
+    </div>
+
+    <!-- CTA -->
+    <div class="faq-cta">
+      <div class="faq-cta-text">
+        <h3>Still have questions?</h3>
+        <p>Our support team is happy to help with anything not covered here.</p>
+      </div>
+      <a href="{% url 'contact' %}" class="btn-contact">Contact Support →</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <span class="footer-brand">MyShop</span>
+       <ul class="nav-links">
+        <li><a href="{% url 'index' %}">Home</a></li>
+        <li><a href="{% url 'product_list' %}">Shop</a></li>
+        <li><a href="{% url 'faq' %}">FAQ</a></li>
+        <li><a href="{% url 'contact' %}">Contact</a></li>
+        <li><a href="{% url 'testimonials' %}">Testimonials</a></li>
+      </ul>
+      <span class="footer-copy">&copy; 2026 MyShop &nbsp;·&nbsp; All rights reserved</span>
+    </div>
+  </footer>
+
+  <script>
+    // Accordion toggle
+    function toggleFaq(el) {
+      const item = el.closest('.faq-item');
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+      if (!isOpen) item.classList.add('open');
+    }
+
+    // Live search
+    const searchInput = document.getElementById('faq-search-input');
+    const emptyState  = document.getElementById('faq-empty');
+
+    searchInput.addEventListener('input', function() {
+      const q = this.value.toLowerCase().trim();
+      let visibleCount = 0;
+
+      document.querySelectorAll('.faq-item').forEach(item => {
+        const text = item.dataset.question || '';
+        const match = !q || text.includes(q);
+        item.style.display = match ? '' : 'none';
+        if (match) visibleCount++;
+      });
+
+      // Hide/show group titles
+      document.querySelectorAll('.faq-group').forEach(group => {
+        const visible = [...group.querySelectorAll('.faq-item')]
+          .some(i => i.style.display !== 'none');
+        group.style.display = visible ? '' : 'none';
+      });
+
+      emptyState.classList.toggle('visible', visibleCount === 0);
+    });
+
+    // Category filter
+    const pills = document.querySelectorAll('.filter-pill');
+    pills.forEach(pill => {
+      pill.addEventListener('click', function() {
+        pills.forEach(p => p.classList.remove('active'));
+        this.classList.add('active');
+        const cat = this.dataset.category;
+
+        document.querySelectorAll('.faq-item').forEach(item => {
+          if (cat === 'all' || item.dataset.category === cat) {
+            item.style.display = '';
+          } else {
+            item.style.display = 'none';
+          }
+        });
+
+        document.querySelectorAll('.faq-group').forEach(group => {
+          const visible = [...group.querySelectorAll('.faq-item')]
+            .some(i => i.style.display !== 'none');
+          group.style.display = visible ? '' : 'none';
+        });
+      });
+    });
+
+    // Remove duplicate category filter pills
+    const seen = new Set();
+    document.querySelectorAll('.filter-pill[data-category]').forEach(pill => {
+      const cat = pill.dataset.category;
+      if (cat !== 'all') {
+        if (seen.has(cat)) {
+          pill.remove();
+        } else {
+          seen.add(cat);
+        }
+      }
+    });
+  </script>
+
+</body>
+</html>

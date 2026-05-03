@@ -1,0 +1,30 @@
+{% load i18n lang_extras %}
+<div class="lang-selector">
+  <button type="button" class="lang-btn" aria-label="{% trans 'Select language' %}">
+    <span class="globe-icon">🌐</span>
+    <span>{{ CURRENT_LANG|upper }}</span>
+    <span class="chevron">▾</span>
+  </button>
+
+  <div class="lang-dropdown">
+    <div class="lang-dropdown-inner">
+      {% for lang in LANG_INFO_LIST %}
+      <form action="{% url 'set_language' %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="language" value="{{ lang.code }}">
+        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+        <button
+          type="submit"
+          class="lang-option {% if lang.code == CURRENT_LANG %}active{% endif %}"
+        >
+          <span class="lang-flag">{{ lang.code|language_flag }}</span>
+          <span class="lang-name">{{ lang.name_local }}</span>
+          {% if lang.code == CURRENT_LANG %}
+          <span class="lang-check">✓</span>
+          {% endif %}
+        </button>
+      </form>
+      {% endfor %}
+    </div>
+  </div>
+</div>

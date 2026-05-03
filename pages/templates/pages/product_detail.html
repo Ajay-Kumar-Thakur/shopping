@@ -1,0 +1,2110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{{ product.name }} — MyShop</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:           #f4f2ee;
+      --bg-card:      #ffffff;
+      --bg-muted:     #f9f8f6;
+      --text:         #1c1a17;
+      --text-soft:    #7a7060;
+      --text-light:   #a89e90;
+      --accent:       #1c1a17;
+      --accent-warm:  #c07c3a;
+      --accent-hover: #2d2a24;
+      --gold:         #c8a84b;
+      --gold-light:   #f5edda;
+      --success:      #2e7d55;
+      --success-bg:   #edf7f1;
+      --error:        #c0392b;
+      --error-bg:     #fdf0ee;
+      --border:       rgba(0,0,0,0.09);
+      --border-warm:  rgba(200,168,75,0.25);
+      --shadow-sm:    0 2px 8px rgba(0,0,0,0.05);
+      --shadow-md:    0 8px 32px rgba(0,0,0,0.08);
+      --radius:       6px;
+    }
+
+    html, body {
+      min-height: 100%;
+      background: var(--bg);
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cpath d='M0 0h60v60H0z' fill='none'/%3E%3Ccircle cx='30' cy='30' r='0.6' fill='rgba(0,0,0,0.04)'/%3E%3C/svg%3E");
+      pointer-events: none;
+    }
+
+    header, main, footer { position: relative; z-index: 1; }
+
+    /* ── Header ── */
+    header {
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 200;
+    }
+
+    .nav {
+      max-width: 1100px; margin: 0 auto;
+      padding: 0 40px;
+      height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+
+    .brand {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--accent); text-decoration: none;
+    }
+
+    .nav-links { display: flex; align-items: center; gap: 32px; list-style: none; }
+    .nav-links a {
+      color: var(--text-soft); text-decoration: none;
+      font-size: 11px; font-weight: 500;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--accent); }
+
+    .nav-right { display: flex; gap: 16px; align-items: center; }
+    .nav-icon-btn {
+      background: none; border: none; cursor: pointer;
+      color: var(--text-soft); display: flex; align-items: center;
+      transition: color 0.2s; padding: 4px;
+      position: relative;
+    }
+    .nav-icon-btn:hover { color: var(--accent); }
+    .nav-icon-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+
+    /* Cart badge */
+    .cart-badge {
+      position: absolute; top: -4px; right: -4px;
+      background: var(--accent-warm);
+      color: #fff;
+      width: 16px; height: 16px; border-radius: 50%;
+      font-size: 9px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      line-height: 1;
+    }
+
+    /* ── Breadcrumb ── */
+    .breadcrumb-bar {
+      max-width: 1100px; margin: 0 auto;
+      padding: 16px 40px 0;
+      display: flex; align-items: center; gap: 8px;
+      font-size: 11.5px; color: var(--text-light);
+    }
+    .breadcrumb-bar a { color: var(--text-light); text-decoration: none; transition: color 0.2s; }
+    .breadcrumb-bar a:hover { color: var(--accent); }
+    .breadcrumb-bar span { color: var(--text-soft); font-weight: 500; }
+    .bc-sep { opacity: 0.5; }
+
+    /* ── Two-Column Layout ── */
+    .page-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 28px 40px 90px;
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 40px;
+      align-items: start;
+    }
+
+    /* ════════════════════════════════
+       LEFT COLUMN
+    ════════════════════════════════ */
+    .left-col { display: flex; flex-direction: column; gap: 24px; }
+
+    /* ── Main Image Gallery ── */
+    .gallery-outer {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      animation: fadeUp 0.5s ease 0.05s both;
+      position: relative;
+    }
+
+    .gallery-wrap {
+      width: 100%;
+      height: 440px;
+      background: #f0eee9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .gallery-badge {
+      position: absolute; top: 14px; left: 14px;
+      background: var(--gold);
+      color: #fff;
+      font-size: 9.5px; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase;
+      padding: 4px 11px; border-radius: 2px;
+      z-index: 2;
+    }
+
+    .gallery-wrap img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: contain;
+      object-position: center;
+      transition: transform 0.6s ease;
+      padding: 12px;
+    }
+    .gallery-outer:hover .gallery-wrap img { transform: scale(1.04); }
+    #mainImg { transition: transform 0.6s ease, opacity 0.15s ease; }
+
+    .image-placeholder {
+      width: 100%; height: 100%;
+      background: #ede9e1;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .image-placeholder svg { width: 52px; height: 52px; opacity: 0.15; }
+
+    /* ── Thumbnail Strip ── */
+    .thumb-strip {
+      display: flex; gap: 8px;
+      padding: 12px 14px;
+      border-top: 1px solid var(--border);
+      background: var(--bg-muted);
+    }
+    .thumb {
+      width: 72px; height: 64px; border-radius: 4px;
+      background: #f0eee9; border: 2px solid var(--border);
+      overflow: hidden; cursor: pointer; transition: border-color 0.2s, box-shadow 0.2s;
+      flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    }
+    .thumb:hover { border-color: rgba(200,168,75,0.5); }
+    .thumb.active { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold); }
+    .thumb img {
+      width: 100%; height: 100%;
+      object-fit: contain;
+      object-position: center;
+      padding: 4px;
+    }
+    .thumb-placeholder { width: 100%; height: 100%; background: #ede9e1; border-radius: 2px; }
+
+    /* ── Product Meta ── */
+    .product-meta {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: var(--shadow-sm);
+      animation: fadeUp 0.5s ease 0.1s both;
+    }
+
+    .meta-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--gold-light);
+      border: 1px solid var(--border-warm);
+      padding: 4px 12px; border-radius: 2px;
+      font-size: 9.5px; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase;
+      color: #a07020; margin-bottom: 14px;
+    }
+    .meta-badge svg { width: 11px; height: 11px; stroke: #a07020; fill: none; stroke-width: 2.5; }
+
+    .product-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 32px; font-weight: 700; line-height: 1.2;
+      color: var(--text); margin-bottom: 10px;
+    }
+
+    .rating-row {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 14px;
+    }
+    .stars { display: flex; gap: 2px; }
+    .star { width: 14px; height: 14px; fill: var(--gold); }
+    .star.half { fill: none; stroke: var(--gold); stroke-width: 1.5; }
+    .star.empty { fill: none; stroke: #ccc; stroke-width: 1.5; }
+    .rating-count { font-size: 12.5px; color: var(--text-soft); }
+    .rating-score { font-size: 12.5px; font-weight: 600; color: var(--text); }
+
+    .product-desc {
+      font-size: 14.5px; line-height: 1.8; color: var(--text-soft);
+      border-top: 1px solid var(--border);
+      padding-top: 16px; margin-top: 4px;
+    }
+
+    .price-row {
+      display: flex; align-items: baseline; gap: 10px;
+      margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--border);
+    }
+    .price-main {
+      font-family: 'Playfair Display', serif;
+      font-size: 36px; font-weight: 700; color: var(--accent);
+    }
+    .per-unit { font-size: 13px; color: var(--text-soft); margin-left: 2px; }
+
+    /* ── Feature List ── */
+    .feature-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px 28px;
+      box-shadow: var(--shadow-sm);
+      animation: fadeUp 0.5s ease 0.15s both;
+    }
+
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px; font-weight: 600; color: var(--text);
+      margin-bottom: 18px;
+    }
+
+    .feature-list { display: flex; flex-direction: column; gap: 12px; }
+    .feature-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      font-size: 13.5px; color: var(--text-soft); line-height: 1.6;
+    }
+    .feature-icon {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: var(--gold-light); border: 1px solid var(--border-warm);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .feature-icon svg { width: 13px; height: 13px; stroke: var(--accent-warm); fill: none; stroke-width: 2.2; }
+    .fi-label { font-weight: 600; color: var(--text); display: block; font-size: 12.5px; margin-bottom: 1px; }
+
+    /* ── Reviews ── */
+    .reviews-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px 28px;
+      box-shadow: var(--shadow-sm);
+      animation: fadeUp 0.5s ease 0.2s both;
+    }
+
+    .reviews-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .reviews-summary {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 18px; background: var(--bg-muted);
+      border: 1px solid var(--border); border-radius: 4px;
+      margin-bottom: 18px;
+    }
+    .rev-score-big {
+      font-family: 'Playfair Display', serif;
+      font-size: 44px; font-weight: 700; color: var(--text);
+      line-height: 1;
+    }
+    .rev-score-info { display: flex; flex-direction: column; gap: 4px; }
+    .rev-total { font-size: 11.5px; color: var(--text-soft); }
+
+    .review-card {
+      padding: 16px 0;
+      border-top: 1px solid var(--border);
+    }
+    .reviewer-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+    .reviewer-info { display: flex; align-items: center; gap: 10px; }
+    .reviewer-avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: var(--gold-light); border: 1px solid var(--border-warm);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Playfair Display', serif; font-size: 13px; font-weight: 600;
+      color: var(--accent-warm);
+    }
+    .reviewer-name { font-size: 13.5px; font-weight: 600; color: var(--text); }
+    .review-date { font-size: 11.5px; color: var(--text-light); }
+    .review-text { font-size: 13.5px; color: var(--text-soft); line-height: 1.7; }
+    .verified-tag { font-size: 10px; color: var(--success); font-weight: 600; letter-spacing: 0.1em; display: flex; align-items: center; gap: 4px; }
+    .verified-tag svg { width: 10px; height: 10px; stroke: var(--success); fill: none; stroke-width: 2.5; }
+
+    /* ════════════════════════════════
+       RIGHT COLUMN
+    ════════════════════════════════ */
+    .right-col {
+      display: flex; flex-direction: column; gap: 16px;
+      position: sticky; top: 84px;
+      animation: fadeUp 0.5s ease 0.25s both;
+    }
+
+    .right-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .rc-header {
+      padding: 14px 22px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-muted);
+      display: flex; align-items: center; gap: 10px;
+    }
+
+    .rc-header-icon {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--gold-light);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .rc-header-icon svg { width: 12px; height: 12px; stroke: var(--accent-warm); fill: none; stroke-width: 2.2; }
+
+    .rc-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 15px; font-weight: 600; color: var(--text);
+    }
+    .rc-body { padding: 18px 22px; }
+
+    /* ── Delivery Panel ── */
+    .delivery-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .delivery-item:last-child { border-bottom: none; }
+    .di-icon { flex-shrink: 0; margin-top: 2px; }
+    .di-icon svg { width: 16px; height: 16px; stroke: var(--accent-warm); fill: none; stroke-width: 1.8; }
+    .di-label { font-size: 12.5px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+    .di-desc { font-size: 12px; color: var(--text-soft); line-height: 1.5; }
+    .di-tag { display: inline-block; background: var(--success-bg); color: var(--success); font-size: 9.5px; font-weight: 600; letter-spacing: 0.08em; padding: 2px 7px; border-radius: 2px; margin-top: 4px; }
+
+    /* ── Policy Panel ── */
+    .policy-grid { display: flex; flex-direction: column; gap: 0; }
+    .policy-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 0; border-bottom: 1px solid var(--border);
+      font-size: 12.5px;
+    }
+    .policy-item:last-child { border-bottom: none; }
+    .policy-item svg { width: 14px; height: 14px; stroke: var(--gold); fill: none; stroke-width: 2; flex-shrink: 0; }
+    .pol-name { font-weight: 500; color: var(--text); }
+    .pol-val { margin-left: auto; font-size: 11.5px; color: var(--text-soft); }
+
+    /* ── Add to Cart ── */
+    .product-summary-line {
+      display: flex; justify-content: space-between; align-items: center;
+      background: var(--bg-muted); border: 1px solid var(--border);
+      border-radius: 4px; padding: 10px 14px; margin-bottom: 14px;
+    }
+    .psl-name { font-size: 12.5px; font-weight: 600; color: var(--text); }
+    .psl-price { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; color: var(--accent); }
+    .psl-sub { font-size: 10.5px; color: var(--text-soft); }
+
+    .qty-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+    .qty-label { font-size: 10.5px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text); }
+    .qty-control { display: flex; align-items: center; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; margin-left: auto; }
+    .qty-btn { background: var(--bg-muted); border: none; width: 32px; height: 32px; cursor: pointer; font-size: 15px; color: var(--text); display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
+    .qty-btn:hover { background: var(--border); }
+    .qty-input { border: none; outline: none; background: #fff; width: 44px; height: 32px; text-align: center; font-family: 'DM Sans', sans-serif; font-size: 13.5px; font-weight: 600; color: var(--text); }
+
+    .stock-status { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--success); margin-bottom: 14px; }
+    .stock-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--success); flex-shrink: 0; }
+
+    .btn-cart {
+      width: 100%; padding: 13px; background: var(--accent);
+      color: #fff; border: none; border-radius: 4px;
+      font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 9px;
+      transition: all 0.2s; margin-bottom: 9px;
+    }
+    .btn-cart:hover { background: var(--accent-hover); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
+    .btn-cart svg { width: 14px; height: 14px; stroke: #fff; fill: none; stroke-width: 2; }
+
+    .btn-wishlist {
+      width: 100%; padding: 11px; background: transparent;
+      color: var(--text); border: 1.5px solid var(--border);
+      border-radius: 4px;
+      font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500;
+      letter-spacing: 0.08em; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 7px;
+      transition: all 0.2s;
+    }
+    .btn-wishlist:hover { border-color: var(--gold); color: var(--accent-warm); }
+    .btn-wishlist svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+    /* ── Order Form ── */
+    .order-method-tabs { display: flex; gap: 0; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; margin-bottom: 18px; }
+    .om-tab {
+      flex: 1; padding: 9px 8px; background: var(--bg-muted);
+      border: none; cursor: pointer;
+      font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 500;
+      letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-soft);
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      transition: all 0.2s; border-right: 1px solid var(--border);
+    }
+    .om-tab:last-child { border-right: none; }
+    .om-tab.active { background: var(--accent); color: #fff; }
+    .om-tab svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+    .form-messages { margin-bottom: 14px; }
+
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .field-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
+    .field-group label {
+      font-size: 9.5px; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--text);
+    }
+    .field-group input, .field-group textarea, .field-group select {
+      background: var(--bg-muted); border: 1.5px solid var(--border);
+      border-radius: 4px; padding: 9px 12px;
+      font-family: 'DM Sans', sans-serif; font-size: 13px;
+      color: var(--text); outline: none; width: 100%;
+      transition: border-color 0.2s;
+    }
+    .field-group input:focus, .field-group textarea:focus, .field-group select:focus {
+      border-color: var(--gold); background: #fff;
+    }
+    .field-group textarea { resize: vertical; min-height: 66px; }
+
+    .address-sep {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--text-light); margin: 4px 0 12px; display: flex; align-items: center; gap: 8px;
+    }
+    .address-sep::before, .address-sep::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    .order-total-line {
+      display: flex; justify-content: space-between; align-items: center;
+      background: var(--bg-muted); border: 1px solid var(--border);
+      border-radius: 4px; padding: 10px 14px; margin-bottom: 14px;
+    }
+    .otl-label { font-size: 11.5px; color: var(--text-soft); }
+    .otl-amount { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: var(--accent); }
+    .otl-note { font-size: 10.5px; color: var(--text-light); }
+
+    .btn-order {
+      width: 100%; padding: 14px; background: var(--accent-warm);
+      color: #fff; border: none; border-radius: 4px;
+      font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600;
+      letter-spacing: 0.14em; text-transform: uppercase; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 9px;
+      transition: all 0.2s;
+    }
+    .btn-order:hover { background: #a56228; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(192,124,58,0.3); }
+    .btn-order svg { width: 14px; height: 14px; stroke: #fff; fill: none; stroke-width: 2; }
+
+    .trust-strip { display: flex; justify-content: center; gap: 18px; padding: 12px 0 0; }
+    .trust-item { display: flex; align-items: center; gap: 5px; font-size: 10.5px; color: var(--text-soft); }
+    .trust-item svg { width: 12px; height: 12px; stroke: var(--text-light); fill: none; stroke-width: 2; }
+
+    /* ── Footer ── */
+    footer {
+      background: var(--bg-card); border-top: 1px solid var(--border);
+      padding: 30px 40px; position: relative; z-index: 1;
+    }
+    .footer-inner {
+      max-width: 1100px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .footer-brand {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--text);
+    }
+    .footer-links { display: flex; gap: 24px; list-style: none; }
+    .footer-links a { font-size: 11px; color: var(--text-soft); text-decoration: none; letter-spacing: 0.1em; text-transform: uppercase; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--accent); }
+    .footer-copy { font-size: 10.5px; color: var(--text-light); }
+
+    /* ══════════════════════════════════
+       TESTIMONIALS SECTION
+    ══════════════════════════════════ */
+    .testimonials-outer {
+      background: var(--bg-card);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      position: relative; z-index: 1;
+    }
+
+    .testimonials-inner {
+      max-width: 1100px; margin: 0 auto;
+      padding: 64px 40px 72px;
+    }
+
+    .tsec-section-head {
+      display: flex; align-items: center; gap: 18px;
+      margin-bottom: 32px;
+    }
+    .tsec-section-label {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.18em;
+      text-transform: uppercase; color: var(--text);
+      white-space: nowrap;
+    }
+    .tsec-section-rule { flex: 1; height: 1px; background: var(--border); }
+    .tsec-section-count {
+      font-size: 10px; font-weight: 500; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--text-soft);
+      border: 1px solid var(--border); background: var(--bg-muted);
+      padding: 3px 12px; border-radius: 2px; white-space: nowrap;
+    }
+
+    .tcard-grid {
+      columns: 3;
+      column-gap: 18px;
+    }
+
+    .pd-tcard {
+      break-inside: avoid;
+      background: var(--bg-muted);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 18px;
+      position: relative; overflow: hidden;
+      transition: transform 0.22s, box-shadow 0.22s, border-color 0.22s;
+      animation: fadeUp 0.5s ease both;
+    }
+    .pd-tcard:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--border-warm);
+    }
+    .pd-tcard.featured {
+      background: #fdfcf8;
+      border-color: var(--border-warm);
+    }
+
+    .pd-tcard::before {
+      content: '';
+      position: absolute; top: 0; left: 0;
+      width: 0; height: 0; border-style: solid;
+      border-width: 20px 20px 0 0;
+      border-color: var(--border) transparent transparent transparent;
+      transition: border-width 0.22s, border-color 0.22s;
+    }
+    .pd-tcard:hover::before {
+      border-width: 28px 28px 0 0;
+      border-color: var(--gold) transparent transparent transparent;
+    }
+
+    .pd-quote-mark {
+      font-family: 'Playfair Display', serif;
+      font-size: 60px; font-weight: 700;
+      color: var(--border); line-height: 0.5;
+      margin-bottom: 10px; display: block;
+    }
+
+    .pd-tcard-stars { display: flex; gap: 2px; margin-bottom: 12px; }
+    .pd-tstar { width: 13px; height: 13px; }
+    .pd-tstar.filled { fill: var(--gold); stroke: var(--gold); }
+    .pd-tstar.empty  { fill: none; stroke: rgba(0,0,0,0.15); stroke-width: 1.5; }
+
+    .pd-tcard-body {
+      font-size: 13.5px; font-weight: 400;
+      color: var(--text-soft); line-height: 1.75;
+      font-style: italic; margin-bottom: 18px;
+    }
+
+    .pd-tcard-divider { height: 1px; background: var(--border); margin-bottom: 15px; }
+
+    .pd-tcard-author { display: flex; align-items: center; gap: 10px; }
+    .pd-tcard-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 15px; font-weight: 700; color: #fff;
+      flex-shrink: 0; overflow: hidden;
+    }
+    .pd-tcard-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .pd-tcard-name { font-size: 13px; font-weight: 600; color: var(--text); }
+    .pd-tcard-role { font-size: 11px; color: var(--text-light); margin-top: 1px; }
+    .pd-verified-tag {
+      margin-left: auto; font-size: 9px; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--success); background: var(--success-bg);
+      border: 1px solid rgba(46,125,85,0.2);
+      padding: 2px 9px; border-radius: 2px; white-space: nowrap;
+    }
+
+    @media (max-width: 900px) {
+      .tcard-grid { columns: 1; }
+      .testimonials-inner { padding: 44px 20px 56px; }
+    }
+
+    /* ── Pickup Location Panel ── */
+    .pickup-location-card {
+      background: var(--bg-muted);
+      border: 1px solid var(--border-warm);
+      border-radius: var(--radius);
+      padding: 18px;
+      margin-bottom: 4px;
+      animation: fadeUp 0.3s ease both;
+    }
+    .pickup-loc-header {
+      display: flex; align-items: flex-start; gap: 10px;
+      margin-bottom: 14px;
+    }
+    .pickup-pin {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: var(--gold-light); border: 1px solid var(--border-warm);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .pickup-loc-name {
+      font-size: 13.5px; font-weight: 600; color: var(--text);
+      margin-bottom: 4px;
+    }
+    .pickup-loc-tag {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 11px; font-weight: 500; color: var(--success);
+    }
+    .pickup-open-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--success); flex-shrink: 0;
+      animation: pulse-dot 1.8s ease infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.5; transform: scale(0.7); }
+    }
+    .pickup-details-grid {
+      display: flex; flex-direction: column; gap: 8px;
+      padding: 12px 0; border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border); margin-bottom: 14px;
+    }
+    .pickup-detail-row {
+      display: flex; align-items: flex-start; gap: 8px;
+      font-size: 12px; color: var(--text-soft); line-height: 1.5;
+    }
+    .pickup-detail-row svg { flex-shrink: 0; margin-top: 1px; stroke: var(--text-light); }
+
+    .pickup-map-wrap {
+      border-radius: 4px; overflow: hidden;
+      border: 1px solid var(--border);
+      margin-bottom: 12px;
+    }
+
+    .pickup-directions-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 11.5px; font-weight: 600; letter-spacing: 0.08em;
+      color: var(--accent-warm); text-decoration: none;
+      border: 1px solid var(--border-warm);
+      background: var(--gold-light);
+      padding: 7px 14px; border-radius: 4px;
+      transition: all 0.2s; width: 100%; justify-content: center;
+    }
+    .pickup-directions-btn:hover {
+      background: var(--accent-warm); color: #fff;
+    }
+
+    #panel-home, #panel-pickup {
+      transition: opacity 0.25s ease;
+    }
+
+    /* ── Animations ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .page-container { grid-template-columns: 1fr; padding: 20px 20px 72px; gap: 24px; }
+      .right-col { position: static; }
+      .product-name { font-size: 26px; }
+      .nav { padding: 0 20px; }
+      .breadcrumb-bar { padding: 14px 20px 0; }
+      .gallery-wrap { height: 280px; }
+    }
+
+    /* ════════════════════════════════════════════════
+       CART POPUP MODAL — payment.html inside a modal
+    ════════════════════════════════════════════════ */
+
+    /* Overlay backdrop */
+    .cart-modal-overlay {
+      position: fixed; inset: 0; z-index: 1000;
+      background: rgba(15, 14, 13, 0.55);
+      backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      opacity: 0; visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    .cart-modal-overlay.open {
+      opacity: 1; visibility: visible;
+    }
+
+    /* Modal container */
+    .cart-modal {
+      background: #faf9f7;
+      border-radius: 14px;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.22), 0 4px 16px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 1020px;
+      max-height: 92vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transform: translateY(24px) scale(0.97);
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      font-family: 'DM Sans', sans-serif;
+    }
+    .cart-modal-overlay.open .cart-modal {
+      transform: translateY(0) scale(1);
+    }
+
+    /* Modal header bar */
+    .cmodal-header {
+      background: #ffffff;
+      border-bottom: 1px solid #e8e5df;
+      padding: 16px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .cmodal-header-left {
+      display: flex; align-items: center; gap: 12px;
+    }
+    .cmodal-brand {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px; font-weight: 700;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      color: #0f0e0d;
+    }
+    .cmodal-breadcrumb {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; color: #7a7770;
+    }
+    .cmodal-breadcrumb .sep { font-size: 9px; opacity: 0.5; }
+    .cmodal-breadcrumb .current { color: #3d3b37; font-weight: 500; }
+
+    .cmodal-close {
+      background: none; border: none; cursor: pointer;
+      width: 36px; height: 36px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: #7a7770;
+      transition: background 0.18s, color 0.18s;
+    }
+    .cmodal-close:hover { background: #f0ede8; color: #0f0e0d; }
+    .cmodal-close svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
+
+    /* Scrollable body */
+    .cmodal-body {
+      overflow-y: auto;
+      flex: 1;
+      padding: 32px 28px 36px;
+
+      /* Payment page vars */
+      --ink:        #0f0e0d;
+      --ink-2:      #3d3b37;
+      --ink-3:      #7a7770;
+      --paper:      #faf9f7;
+      --surface:    #ffffff;
+      --border:     #e8e5df;
+      --accent:     #1a472a;
+      --accent-2:   #2e8b57;
+      --accent-lt:  #e8f5ee;
+      --gold:       #b8860b;
+      --gold-lt:    #fdf6e3;
+      --danger:     #c0392b;
+      --danger-lt:  #fdf0ef;
+      --radius:     14px;
+      --radius-sm:  8px;
+      --shadow:     0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.07);
+      --shadow-lg:  0 8px 40px rgba(0,0,0,.10);
+      --serif:      'Playfair Display', Georgia, serif;
+      --sans:       'DM Sans', system-ui, sans-serif;
+    }
+
+    /* payment layout inside modal */
+    .cmodal-body .checkout-wrap {
+      max-width: 100%;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 24px;
+      align-items: start;
+    }
+    @media (max-width: 720px) {
+      .cmodal-body .checkout-wrap { grid-template-columns: 1fr; }
+      .cmodal-body .order-sidebar { order: -1; }
+    }
+
+    /* Cards inside modal */
+    .cmodal-body .card {
+      background: #ffffff;
+      border: 1px solid #e8e5df;
+      border-radius: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.07);
+      overflow: hidden;
+    }
+    .cmodal-body .card-head {
+      padding: 16px 20px 14px;
+      border-bottom: 1px solid #e8e5df;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .cmodal-body .card-head h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 16px; font-weight: 400; color: #0f0e0d;
+    }
+    .cmodal-body .card-head .step-dot {
+      width: 26px; height: 26px;
+      background: #1a472a; color: #fff;
+      border-radius: 50%;
+      display: grid; place-items: center;
+      font-size: 11px; font-weight: 600; flex-shrink: 0;
+    }
+    .cmodal-body .card-body { padding: 20px; }
+
+    /* Info grid */
+    .cmodal-body .info-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    }
+    .cmodal-body .info-field label {
+      display: block; font-size: 10px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: .06em;
+      color: #7a7770; margin-bottom: 3px;
+    }
+    .cmodal-body .info-field .value { font-size: 13px; color: #0f0e0d; font-weight: 500; }
+    .cmodal-body .info-field.full { grid-column: 1 / -1; }
+
+    /* Method list */
+    .cmodal-body .method-list { display: flex; flex-direction: column; gap: 8px; }
+    .cmodal-body .method-option {
+      border: 2px solid #e8e5df;
+      border-radius: 8px; padding: 12px 14px;
+      cursor: pointer; transition: border-color .15s, background .15s;
+      display: flex; align-items: center; gap: 12px; user-select: none;
+    }
+    .cmodal-body .method-option:hover { border-color: #2e8b57; background: #e8f5ee; }
+    .cmodal-body .method-option.active { border-color: #1a472a; background: #e8f5ee; }
+    .cmodal-body .method-option input[type="radio"] { display: none; }
+    .cmodal-body .method-icon {
+      width: 38px; height: 28px; background: #faf9f7;
+      border: 1px solid #e8e5df; border-radius: 5px;
+      display: grid; place-items: center; font-size: 14px; flex-shrink: 0;
+    }
+    .cmodal-body .method-name { font-weight: 500; font-size: 13px; color: #0f0e0d; }
+    .cmodal-body .method-desc { font-size: 11px; color: #7a7770; }
+    .cmodal-body .method-check {
+      margin-left: auto; width: 18px; height: 18px;
+      border-radius: 50%; border: 2px solid #e8e5df;
+      display: grid; place-items: center; flex-shrink: 0;
+      transition: background .15s, border-color .15s;
+    }
+    .cmodal-body .method-option.active .method-check { background: #1a472a; border-color: #1a472a; }
+    .cmodal-body .method-option.active .method-check::after {
+      content: ''; display: block; width: 5px; height: 5px;
+      background: #fff; border-radius: 50%;
+    }
+
+    /* Pay panels */
+    .cmodal-body .pay-panel { display: none; margin-top: 12px; }
+    .cmodal-body .pay-panel.visible { display: block; }
+
+    .cmodal-body .esewa-btn {
+      width: 100%; background: #60BB46; color: #fff; border: none;
+      border-radius: 8px; padding: 12px 18px;
+      font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 9px;
+      transition: filter .15s;
+    }
+    .cmodal-body .esewa-btn:hover { filter: brightness(1.07); }
+
+    .cmodal-body .khalti-btn {
+      width: 100%; background: #5C2D91; color: #fff; border: none;
+      border-radius: 8px; padding: 12px 18px;
+      font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 9px;
+      transition: filter .15s;
+    }
+    .cmodal-body .khalti-btn:hover { filter: brightness(1.1); }
+
+    .cmodal-body .cod-btn {
+      width: 100%; background: #1a472a; color: #fff; border: none;
+      border-radius: 8px; padding: 12px 18px;
+      font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 9px;
+      transition: filter .15s;
+    }
+    .cmodal-body .cod-btn:hover { filter: brightness(1.1); }
+
+    /* Card form */
+    .cmodal-body .card-form { display: flex; flex-direction: column; gap: 12px; }
+    .cmodal-body .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .cmodal-body .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .cmodal-body .form-group.full { grid-column: 1 / -1; }
+    .cmodal-body .form-group label {
+      font-size: 10px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: .05em; color: #7a7770;
+    }
+    .cmodal-body .form-group input {
+      border: 1.5px solid #e8e5df; border-radius: 8px;
+      padding: 9px 12px; font-family: 'DM Sans', sans-serif;
+      font-size: 13px; color: #0f0e0d; background: #ffffff;
+      transition: border-color .15s; outline: none;
+    }
+    .cmodal-body .form-group input:focus { border-color: #1a472a; }
+    .cmodal-body .form-group input::placeholder { color: #7a7770; }
+
+    .cmodal-body .btn-primary {
+      width: 100%; background: #1a472a; color: #fff; border: none;
+      border-radius: 8px; padding: 13px 18px;
+      font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 9px;
+      transition: filter .15s, transform .1s; letter-spacing: .01em;
+    }
+    .cmodal-body .btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+    /* Order sidebar inside modal */
+    .cmodal-body .order-meta { padding: 16px 20px; border-bottom: 1px solid #e8e5df; }
+    .cmodal-body .order-meta .order-num {
+      font-family: 'Playfair Display', serif; font-size: 17px; margin-bottom: 3px; color: #0f0e0d;
+    }
+    .cmodal-body .order-meta .order-buyer { font-size: 12px; color: #7a7770; }
+    .cmodal-body .order-items { padding: 12px 20px; border-bottom: 1px solid #e8e5df; }
+    .cmodal-body .order-item {
+      display: flex; gap: 12px; align-items: flex-start; padding: 8px 0;
+    }
+    .cmodal-body .order-item + .order-item { border-top: 1px solid #e8e5df; }
+    .cmodal-body .item-img {
+      width: 46px; height: 46px; border-radius: 7px;
+      object-fit: cover; background: #faf9f7; border: 1px solid #e8e5df; flex-shrink: 0;
+    }
+    .cmodal-body .item-img-placeholder {
+      width: 46px; height: 46px; border-radius: 7px;
+      background: #faf9f7; border: 1px solid #e8e5df;
+      display: grid; place-items: center; font-size: 18px; flex-shrink: 0;
+    }
+    .cmodal-body .item-info { flex: 1; min-width: 0; }
+    .cmodal-body .item-name {
+      font-weight: 500; font-size: 13px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #0f0e0d;
+    }
+    .cmodal-body .item-qty { font-size: 11px; color: #7a7770; }
+    .cmodal-body .item-price { font-weight: 600; font-size: 13px; white-space: nowrap; color: #0f0e0d; }
+
+    .cmodal-body .order-totals { padding: 14px 20px; }
+    .cmodal-body .total-row {
+      display: flex; justify-content: space-between; font-size: 13px;
+      padding: 4px 0; color: #3d3b37;
+    }
+    .cmodal-body .total-row.grand {
+      font-family: 'Playfair Display', serif; font-size: 18px; color: #0f0e0d;
+    }
+    .cmodal-body .total-row.divider { border-top: 1px solid #e8e5df; margin-top: 6px; padding-top: 10px; }
+    .cmodal-body .total-row.discount { color: #2e8b57; }
+
+    .cmodal-body .delivery-badge {
+      margin: 0 20px 16px;
+      padding: 9px 12px; background: #e8f5ee; border: 1px solid #b6dfc9;
+      border-radius: 7px; font-size: 12px; color: #1a472a;
+      display: flex; align-items: center; gap: 7px;
+    }
+
+    .cmodal-body .secure-note {
+      margin-top: 10px; text-align: center; font-size: 11px; color: #7a7770;
+      display: flex; align-items: center; justify-content: center; gap: 5px;
+    }
+
+    /* No order empty state in modal */
+    .cmodal-body .empty-state {
+      text-align: center; padding: 48px 20px;
+    }
+    .cmodal-body .empty-state .icon { font-size: 40px; margin-bottom: 14px; }
+    .cmodal-body .empty-state h2 {
+      font-family: 'Playfair Display', serif; font-size: 20px; margin-bottom: 6px; color: #0f0e0d;
+    }
+    .cmodal-body .empty-state p { color: #7a7770; margin-bottom: 18px; font-size: 13px; }
+    .cmodal-body .btn-secondary {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: transparent; border: 1.5px solid #e8e5df;
+      color: #3d3b37; border-radius: 8px; padding: 9px 16px;
+      font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer;
+      text-decoration: none; transition: border-color .15s, color .15s;
+    }
+    .cmodal-body .btn-secondary:hover { border-color: #3d3b37; color: #0f0e0d; }
+
+    /* Spinner */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .cmodal-body .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+
+    /* Scrollbar styling for modal body */
+    .cmodal-body::-webkit-scrollbar { width: 5px; }
+    .cmodal-body::-webkit-scrollbar-track { background: transparent; }
+    .cmodal-body::-webkit-scrollbar-thumb { background: #d8d4cc; border-radius: 10px; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <nav class="nav">
+      <a href="{% url 'index' %}" class="brand">MyShop</a>
+      <ul class="nav-links">
+        <li><a href="{% url 'index' %}">Home</a></li>
+        <li><a href="{% url 'product_list' %}">Shop</a></li>
+        <li><a href="{% url 'faq' %}">FAQ</a></li>
+        <li><a href="{% url 'contact' %}">Contact</a></li>
+        <li><a href="{% url 'testimonials' %}">Testimonials</a></li>
+      </ul>
+      <div class="nav-right">
+        <button class="nav-icon-btn" title="Search">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </button>
+        <!-- ✦ CART ICON — opens payment popup modal -->
+        <button class="nav-icon-btn" title="Cart" id="cartIconBtn" onclick="openCartModal()">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+          <span class="cart-badge" id="cartBadge">1</span>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb-bar">
+    <a href="{% url 'index' %}">Home</a>
+    <span class="bc-sep">›</span>
+    <a href="{% url 'product_list' %}">Shop</a>
+    <span class="bc-sep">›</span>
+    <span>{{ product.name }}</span>
+  </div>
+
+  <main class="page-container">
+
+    <!-- ═══════════════ LEFT COLUMN ═══════════════ -->
+    <div class="left-col">
+
+      <!-- 1. Product Image Gallery -->
+      <div class="gallery-outer">
+        {% with img_url=product.get_display_image %}
+
+        <div class="gallery-wrap" id="mainGallery">
+          <span class="gallery-badge">Featured</span>
+          {% if img_url %}
+            <img src="{{ img_url }}" alt="{{ product.name }}" id="mainImg">
+          {% else %}
+            <div class="image-placeholder">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                <circle cx="8.5" cy="8.5" r="1.5"/>
+                <path d="M21 15l-5-5L5 21"/>
+              </svg>
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="thumb-strip">
+          {% if img_url %}
+            <div class="thumb active" onclick="setMainImg(this, '{{ img_url }}')">
+              <img src="{{ img_url }}" alt="View 1">
+            </div>
+            <div class="thumb" onclick="setMainImg(this, '{{ img_url }}')">
+              <img src="{{ img_url }}" alt="View 2">
+            </div>
+            <div class="thumb" onclick="setMainImg(this, '{{ img_url }}')">
+              <img src="{{ img_url }}" alt="View 3">
+            </div>
+          {% else %}
+            <div class="thumb active"><div class="thumb-placeholder"></div></div>
+            <div class="thumb"><div class="thumb-placeholder"></div></div>
+            <div class="thumb"><div class="thumb-placeholder"></div></div>
+          {% endif %}
+        </div>
+
+        {% endwith %}
+      </div>
+
+      <!-- 2. Product Info / Meta -->
+      <div class="product-meta">
+        <div class="meta-badge">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          Exclusive Selection
+        </div>
+        <h1 class="product-name">{{ product.name }}</h1>
+
+        <div class="rating-row">
+          <div class="stars">
+            <svg class="star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg class="star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg class="star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg class="star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg class="star half" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <span class="rating-score">4.5</span>
+          <span class="rating-count">(128 reviews)</span>
+        </div>
+
+        <p class="product-desc">{{ product.description }}</p>
+
+        <div class="price-row">
+          <span class="price-main">NPR {{ product.price }}</span>
+          <span class="per-unit">/ unit</span>
+        </div>
+      </div>
+
+      <!-- 3. Product Features -->
+      <div class="feature-section">
+        <h2 class="section-title">Product Features</h2>
+        <div class="feature-list">
+          <div class="feature-item">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <div>
+              <span class="fi-label">Premium Quality</span>
+              Crafted from the finest materials, built to stand the test of time.
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+            </div>
+            <div>
+              <span class="fi-label">Fast Nationwide Delivery</span>
+              Delivered anywhere in Nepal within 3–5 business days.
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <div>
+              <span class="fi-label">Warranty Covered</span>
+              Every item comes with a 12-month manufacturer warranty.
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+            </div>
+            <div>
+              <span class="fi-label">Easy Returns</span>
+              Hassle-free 7-day return policy, no questions asked.
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /left-col -->
+
+
+    <!-- ═══════════════ RIGHT COLUMN ═══════════════ -->
+    <div class="right-col">
+
+      <!-- 1. Delivery Info -->
+      <div class="right-card">
+        <div class="rc-header">
+          <div class="rc-header-icon">
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+          </div>
+          <h3 class="rc-title">Delivery Information</h3>
+        </div>
+        <div class="rc-body" style="padding-bottom:10px">
+          <div class="delivery-item">
+            <div class="di-icon">
+              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div>
+              <div class="di-label">Standard Delivery</div>
+              <div class="di-desc">3–5 business days across Nepal</div>
+              <span class="di-tag">FREE on orders over NPR 2,000</span>
+            </div>
+          </div>
+          <div class="delivery-item">
+            <div class="di-icon">
+              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            </div>
+            <div>
+              <div class="di-label">Express Delivery</div>
+              <div class="di-desc">Next-day delivery within Kathmandu Valley</div>
+              <span class="di-tag" style="background:#fff8e6;color:#a07020">NPR 150 surcharge</span>
+            </div>
+          </div>
+          <div class="delivery-item">
+            <div class="di-icon">
+              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            </div>
+            <div>
+              <div class="di-label">Available In Stock</div>
+              <div class="di-desc">{{ product.stock }} units ready for immediate dispatch</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Store Policy -->
+      <div class="right-card">
+        <div class="rc-header">
+          <div class="rc-header-icon">
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <h3 class="rc-title">Store Policy</h3>
+        </div>
+        <div class="rc-body" style="padding-top:4px;padding-bottom:4px">
+          <div class="policy-grid">
+            <div class="policy-item">
+              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+              <span class="pol-name">Return Policy</span>
+              <span class="pol-val">7 Days</span>
+            </div>
+            <div class="policy-item">
+              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              <span class="pol-name">Warranty</span>
+              <span class="pol-val">12 Months</span>
+            </div>
+            <div class="policy-item">
+              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              <span class="pol-name">Secure Checkout</span>
+              <span class="pol-val">SSL Encrypted</span>
+            </div>
+            <div class="policy-item">
+              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+              <span class="pol-name">COD Available</span>
+              <span class="pol-val">Nationwide</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Add to Cart -->
+      <div class="right-card">
+        <div class="rc-header">
+          <div class="rc-header-icon">
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 001.95-1.56L23 6H6"/></svg>
+          </div>
+          <h3 class="rc-title">Add to Cart</h3>
+        </div>
+        <div class="rc-body">
+          <div class="product-summary-line">
+            <div>
+              <div class="psl-name">{{ product.name }}</div>
+              <div class="psl-sub">per unit</div>
+            </div>
+            <div class="psl-price">NPR {{ product.price }}</div>
+          </div>
+
+          <div class="qty-row">
+            <span class="qty-label">Quantity</span>
+            <div class="qty-control">
+              <button class="qty-btn" onclick="adjustQty(-1)">−</button>
+              <input class="qty-input" type="number" id="qty-display" value="1" min="1" max="{{ product.stock }}">
+              <button class="qty-btn" onclick="adjustQty(1)">+</button>
+            </div>
+          </div>
+
+          <div class="stock-status">
+            <span class="stock-dot"></span>
+            In Stock — {{ product.stock }} units available
+          </div>
+
+          <button class="btn-cart" onclick="addToCart()">
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 001.95-1.56L23 6H6"/></svg>
+            Add to Cart
+          </button>
+
+          <button class="btn-wishlist">
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+            Save to Wishlist
+          </button>
+        </div>
+      </div>
+
+      <!-- 4. Place Order -->
+      <div class="right-card">
+        <div class="rc-header">
+          <div class="rc-header-icon">
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          </div>
+          <h3 class="rc-title">Place Order</h3>
+        </div>
+        <div class="rc-body">
+
+          <div class="order-method-tabs">
+            <button class="om-tab active" id="tab-home" onclick="switchOrderTab('home')">
+              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              Home Delivery
+            </button>
+            <button class="om-tab" id="tab-pickup" onclick="switchOrderTab('pickup')">
+              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              Pickup
+            </button>
+          </div>
+
+          <!-- HOME DELIVERY FORM -->
+          <div id="panel-home">
+            <form method="post" novalidate>
+              {% csrf_token %}
+              <input type="hidden" name="order_type" value="home">
+
+              <div class="form-messages">
+                {% if messages %}
+                  {% for message in messages %}
+                    <div style="padding:10px 13px;font-size:12.5px;border-radius:4px;
+                      background:{% if message.tags == 'error' %}var(--error-bg){% else %}var(--success-bg){% endif %};
+                      color:{% if message.tags == 'error' %}var(--error){% else %}var(--success){% endif %};
+                      border:1px solid currentColor;margin-bottom:12px;">
+                      {{ message }}
+                    </div>
+                  {% endfor %}
+                {% endif %}
+              </div>
+
+              <div class="address-sep">Customer Information</div>
+              <div class="field-row">
+                <div class="field-group">
+                  <label>Full Name *</label>
+                  <input type="text" name="guest_name" value="{{ form.guest_name.value|default:'' }}" placeholder="Your full name">
+                </div>
+                <div class="field-group">
+                  <label>Phone Number *</label>
+                  <input type="tel" name="guest_phone" value="{{ form.guest_phone.value|default:'' }}" placeholder="98XXXXXXXX">
+                </div>
+              </div>
+              <div class="field-group">
+                <label>Email Address</label>
+                <input type="email" name="guest_email" value="{{ form.guest_email.value|default:'' }}" placeholder="your@email.com">
+              </div>
+
+              <div class="address-sep">Delivery Address</div>
+              <div class="field-row">
+                <div class="field-group">
+                  <label>City / District *</label>
+                  <input type="text" name="city" placeholder="e.g. Kathmandu">
+                </div>
+                <div class="field-group">
+                  <label>Province</label>
+                  <select name="province">
+                    <option value="">Select Province</option>
+                    <option>Bagmati Province</option>
+                    <option>Gandaki Province</option>
+                    <option>Lumbini Province</option>
+                    <option>Koshi Province</option>
+                    <option>Madhesh Province</option>
+                    <option>Karnali Province</option>
+                    <option>Sudurpashchim Province</option>
+                  </select>
+                </div>
+              </div>
+              <div class="field-group">
+                <label>Street Address *</label>
+                <input type="text" name="street" placeholder="Tole, Ward No., Landmark">
+              </div>
+              <div class="field-group">
+                <label>Order Note (Optional)</label>
+                <textarea name="note" placeholder="Any special instructions…"></textarea>
+              </div>
+              <div class="field-group">
+                <label>Quantity *</label>
+                <input type="number" name="quantity" min="1" max="{{ product.stock }}" value="{{ form.quantity.value|default:'1' }}">
+              </div>
+
+              <div class="order-total-line">
+                <div>
+                  <div class="otl-label">Order Total</div>
+                  <div class="otl-note">incl. applicable taxes</div>
+                </div>
+                <div class="otl-amount">NPR {{ product.price }}</div>
+              </div>
+
+              <button type="submit" name="place_order" class="btn-order">
+                <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                Confirm &amp; Place Order
+              </button>
+            </form>
+          </div>
+
+          <!-- PICKUP PANEL -->
+          <div id="panel-pickup" style="display:none;">
+            <div class="pickup-location-card">
+              <div class="pickup-loc-header">
+                <div class="pickup-pin">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-warm)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                </div>
+                <div>
+                  <div class="pickup-loc-name">MyShop — Main Store</div>
+                  <div class="pickup-loc-tag">
+                    <span class="pickup-open-dot"></span> Open Now
+                  </div>
+                </div>
+              </div>
+
+              <div class="pickup-details-grid">
+                <div class="pickup-detail-row">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                  <span>New Baneshwor, Kathmandu, Bagmati Province</span>
+                </div>
+                <div class="pickup-detail-row">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  <span>Sun – Fri &nbsp;·&nbsp; 9:00 AM – 6:00 PM</span>
+                </div>
+                <div class="pickup-detail-row">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.82 19.79 19.79 0 01.01 1.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+                  <span>+977-01-4XXXXXX</span>
+                </div>
+              </div>
+
+              <div class="pickup-map-wrap">
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3532.593!2d85.3391!3d27.6908!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39eb19a3dc46b3a7%3A0x1f4ab73b3ba5e428!2sNew%20Baneshwor%2C%20Kathmandu!5e0!3m2!1sen!2snp!4v1710000000000!5m2!1sen!2snp"
+                  width="100%" height="180" style="border:0;border-radius:4px;display:block;" allowfullscreen loading="lazy"
+                  referrerpolicy="no-referrer-when-downgrade">
+                </iframe>
+              </div>
+
+              <a href="https://maps.google.com/?q=New+Baneshwor,Kathmandu" target="_blank" class="pickup-directions-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+                Get Directions
+              </a>
+            </div>
+
+            <form method="post" novalidate style="margin-top:18px;">
+              {% csrf_token %}
+              <input type="hidden" name="order_type" value="pickup">
+              <div class="address-sep">Your Information</div>
+              <div class="field-row">
+                <div class="field-group">
+                  <label>Full Name *</label>
+                  <input type="text" name="guest_name" value="{{ form.guest_name.value|default:'' }}" placeholder="Your full name">
+                </div>
+                <div class="field-group">
+                  <label>Phone Number *</label>
+                  <input type="tel" name="guest_phone" value="{{ form.guest_phone.value|default:'' }}" placeholder="98XXXXXXXX">
+                </div>
+              </div>
+              <div class="field-group">
+                <label>Email Address</label>
+                <input type="email" name="guest_email" value="{{ form.guest_email.value|default:'' }}" placeholder="your@email.com">
+              </div>
+              <div class="field-group">
+                <label>Pickup Note (Optional)</label>
+                <textarea name="note" placeholder="Any instructions for pickup…"></textarea>
+              </div>
+              <div class="field-group">
+                <label>Quantity *</label>
+                <input type="number" name="quantity" min="1" max="{{ product.stock }}" value="{{ form.quantity.value|default:'1' }}">
+              </div>
+              <div class="order-total-line">
+                <div>
+                  <div class="otl-label">Order Total</div>
+                  <div class="otl-note">No delivery charge</div>
+                </div>
+                <div class="otl-amount">NPR {{ product.price }}</div>
+              </div>
+              <button type="submit" name="place_order" class="btn-order" style="background:var(--accent);">
+                <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                Reserve for Pickup
+              </button>
+            </form>
+          </div><!-- /panel-pickup -->
+
+          <div class="trust-strip">
+            <div class="trust-item">
+              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              Secured
+            </div>
+            <div class="trust-item">
+              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              Protected
+            </div>
+            <div class="trust-item">
+              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              Verified Shop
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /right-col -->
+
+  </main>
+
+  <!-- ═══════════════ TESTIMONIALS SECTION ═══════════════ -->
+  <div class="testimonials-outer">
+    <div class="testimonials-inner">
+      <div class="tsec-section-head">
+        <h2 class="tsec-section-label">Customer Reviews</h2>
+        <div class="tsec-section-rule"></div>
+        <span class="tsec-section-count">{{ testimonials.count|default:"6" }} Reviews</span>
+      </div>
+
+      <div class="tcard-grid">
+        {% for t in testimonials %}
+        <div class="pd-tcard {% if forloop.first %}featured{% endif %}"
+             style="animation-delay:{{ forloop.counter0 }}00ms">
+          <span class="pd-quote-mark">"</span>
+          <div class="pd-tcard-stars">
+            {% for i in "12345" %}
+              {% if forloop.counter <= t.rating %}
+                <svg class="pd-tstar filled" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              {% else %}
+                <svg class="pd-tstar empty" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              {% endif %}
+            {% endfor %}
+          </div>
+          <p class="pd-tcard-body">{{ t.message }}</p>
+          <div class="pd-tcard-divider"></div>
+          <div class="pd-tcard-author">
+            <div class="pd-tcard-avatar">
+              {% if t.avatar_url %}<img src="{{ t.avatar_url }}" alt="{{ t.name }}"/>{% else %}{{ t.name|first|upper }}{% endif %}
+            </div>
+            <div>
+              <div class="pd-tcard-name">{{ t.name }}</div>
+              {% if t.role %}<div class="pd-tcard-role">{{ t.role }}</div>{% endif %}
+            </div>
+            <span class="pd-verified-tag">✓ Verified</span>
+          </div>
+        </div>
+        {% empty %}
+        <div class="pd-tcard featured" style="animation-delay:0ms">
+          <span class="pd-quote-mark">"</span>
+          <div class="pd-tcard-stars">
+            <svg class="pd-tstar filled" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg class="pd-tstar filled" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg class="pd-tstar filled" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg class="pd-tstar filled" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg class="pd-tstar filled" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <p class="pd-tcard-body">Absolutely love the quality! The product arrived well-packaged and exactly as described. MyShop has earned a loyal customer — will be ordering again very soon.</p>
+          <div class="pd-tcard-divider"></div>
+          <div class="pd-tcard-author">
+            <div class="pd-tcard-avatar">A</div>
+            <div><div class="pd-tcard-name">ajay kumar thakur</div><div class="pd-tcard-role">Lalitpur · 2 days ago</div></div>
+            <span class="pd-verified-tag">✓ Verified</span>
+          </div>
+        </div>
+        <div class="pd-tcard" style="animation-delay:100ms">
+          <span class="pd-quote-mark">"</span>
+          <div class="pd-tcard-stars">
+            <svg class="pd-tstar filled" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg class="pd-tstar filled" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg class="pd-tstar filled" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg class="pd-tstar filled" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg class="pd-tstar empty" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <p class="pd-tcard-body">Great value for money. Delivery was faster than expected and customer support was very responsive. The product feels premium and well-crafted.</p>
+          <div class="pd-tcard-divider"></div>
+          <div class="pd-tcard-author">
+            <div class="pd-tcard-avatar">A</div>
+            <div><div class="pd-tcard-name">ajay kumar</div><div class="pd-tcard-role">Lalitpur · 3 days ago</div></div>
+            <span class="pd-verified-tag">✓ Verified</span>
+          </div>
+        </div>
+        <div class="pd-tcard" style="animation-delay:200ms">
+          <span class="pd-quote-mark">"</span>
+          <div class="pd-tcard-stars">
+            <svg class="pd-tstar filled" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg class="pd-tstar filled" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg class="pd-tstar filled" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg class="pd-tstar filled" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg class="pd-tstar filled" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <p class="pd-tcard-body">Ordered twice now and both times the experience has been seamless. Packaging is careful, delivery on time, product quality consistently excellent.</p>
+          <div class="pd-tcard-divider"></div>
+          <div class="pd-tcard-author">
+            <div class="pd-tcard-avatar">k</div>
+            <div><div class="pd-tcard-name">kshitiz</div><div class="pd-tcard-role">Bhaktapur</div></div>
+            <span class="pd-verified-tag">✓ Verified</span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <div style="text-align:center; margin-top:32px;">
+        <a href="{% url 'testimonials' %}"
+           style="display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:500;color:var(--accent-warm);text-decoration:none;border-bottom:1px solid var(--border-warm);padding-bottom:2px;transition:opacity 0.2s;"
+           onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
+          All Reviews &nbsp;→
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-inner">
+      <span class="footer-brand">MyShop</span>
+      <ul class="footer-links">
+        <li><a href="{% url 'index' %}">Home</a></li>
+        <li><a href="{% url 'product_list' %}">Shop</a></li>
+        <li><a href="{% url 'faq' %}">FAQ</a></li>
+        <li><a href="{% url 'contact' %}">Contact</a></li>
+        <li><a href="{% url 'testimonials' %}">Testimonials</a></li>
+      </ul>
+      <span class="footer-copy">&copy; 2026 MyShop &nbsp;·&nbsp; All rights reserved</span>
+    </div>
+  </footer>
+
+
+  <!-- ════════════════════════════════════════════════════════
+       CART / PAYMENT POPUP MODAL
+       Full payment.html UI embedded as a modal popup
+  ════════════════════════════════════════════════════════ -->
+  <div class="cart-modal-overlay" id="cartModalOverlay" onclick="handleOverlayClick(event)">
+    <div class="cart-modal" id="cartModal">
+
+      <!-- Modal Header -->
+      <div class="cmodal-header">
+        <div class="cmodal-header-left">
+          <span class="cmodal-brand">MyShop</span>
+          <nav class="cmodal-breadcrumb">
+            <a href="{% url 'index' %}">Home</a>
+            <span class="sep">›</span>
+            <a href="{% url 'product_list' %}">Shop</a>
+            <span class="sep">›</span>
+            <span class="current">Payment</span>
+          </nav>
+        </div>
+        <button class="cmodal-close" onclick="closeCartModal()" title="Close">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <!-- Modal Scrollable Body — payment.html content -->
+      <div class="cmodal-body">
+
+        <!-- Two-column checkout layout -->
+        <div class="checkout-wrap">
+
+          <!-- LEFT: Payment steps -->
+          <div class="payment-main">
+
+            <!-- Step 1: Delivery Details -->
+            <div class="card" style="margin-bottom:20px;">
+              <div class="card-head">
+                <div class="step-dot">1</div>
+                <h2>Delivery Details</h2>
+              </div>
+              <div class="card-body">
+                <div class="info-grid">
+                  <div class="info-field">
+                    <label>Customer</label>
+                    <div class="value">{{ order.guest_name|default:"—" }}</div>
+                  </div>
+                  <div class="info-field">
+                    <label>Phone</label>
+                    <div class="value">{{ order.guest_phone|default:"—" }}</div>
+                  </div>
+                  <div class="info-field">
+                    <label>Email</label>
+                    <div class="value">{{ order.guest_email|default:"—" }}</div>
+                  </div>
+                  <div class="info-field">
+                    <label>Delivery type</label>
+                    <div class="value">{{ order.get_order_type_display|default:"Home Delivery" }}</div>
+                  </div>
+                  <div class="info-field full">
+                    <label>Address</label>
+                    <div class="value">{{ order.street|default:"—" }}{% if order.city %}, {{ order.city }}{% endif %}{% if order.province %}, {{ order.province }}{% endif %}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 2: Payment Method -->
+            <div class="card">
+              <div class="card-head">
+                <div class="step-dot">2</div>
+                <h2>Choose Payment Method</h2>
+              </div>
+              <div class="card-body">
+
+                <div class="method-list">
+
+                  <!-- eSewa -->
+                  <label class="method-option" id="modal-opt-esewa" onclick="modalSelectMethod('esewa')">
+                    <input type="radio" name="modal_pay_method" value="esewa">
+                    <div class="method-icon">
+                      <span style="color:#60BB46;font-weight:700;font-size:11px;">eS</span>
+                    </div>
+                    <div>
+                      <div class="method-name">eSewa</div>
+                      <div class="method-desc">Pay via eSewa digital wallet</div>
+                    </div>
+                    <div class="method-check"></div>
+                  </label>
+                  <div class="pay-panel" id="modal-panel-esewa">
+                    <div style="background:#e8f5ee;border:1px solid #b6dfc9;border-radius:7px;padding:12px 14px;font-size:13px;color:#1a472a;margin-bottom:10px;">
+                      You will be redirected to eSewa to complete payment of <strong>NPR {{ product.price }}</strong>.
+                    </div>
+                    <button class="esewa-btn" id="modal-btn-esewa" onclick="modalInitiateEsewa()">
+                      Pay NPR {{ product.price }} with eSewa
+                    </button>
+                  </div>
+
+                  <!-- Khalti -->
+                  <label class="method-option" id="modal-opt-khalti" onclick="modalSelectMethod('khalti')">
+                    <input type="radio" name="modal_pay_method" value="khalti">
+                    <div class="method-icon">
+                      <span style="color:#5C2D91;font-weight:700;font-size:11px;">Kh</span>
+                    </div>
+                    <div>
+                      <div class="method-name">Khalti</div>
+                      <div class="method-desc">Pay via Khalti digital wallet</div>
+                    </div>
+                    <div class="method-check"></div>
+                  </label>
+                  <div class="pay-panel" id="modal-panel-khalti">
+                    <div style="background:#f3edfb;border:1px solid #c9aee8;border-radius:7px;padding:12px 14px;font-size:13px;color:#5C2D91;margin-bottom:10px;">
+                      You will be redirected to Khalti to complete payment of <strong>NPR {{ product.price }}</strong>.
+                    </div>
+                    <button class="khalti-btn" id="modal-btn-khalti" onclick="modalInitiateKhalti()">
+                      Pay NPR {{ product.price }} with Khalti
+                    </button>
+                  </div>
+
+                  <!-- Cash on Delivery -->
+                  <label class="method-option" id="modal-opt-cod" onclick="modalSelectMethod('cod')">
+                    <input type="radio" name="modal_pay_method" value="cod">
+                    <div class="method-icon">💵</div>
+                    <div>
+                      <div class="method-name">Cash on Delivery</div>
+                      <div class="method-desc">Pay when your order arrives</div>
+                    </div>
+                    <div class="method-check"></div>
+                  </label>
+                  <div class="pay-panel" id="modal-panel-cod">
+                    <div style="background:#fdf6e3;border:1px solid #e8d78a;border-radius:7px;padding:12px 14px;font-size:13px;color:#b8860b;margin-bottom:10px;">
+                      Pay <strong>NPR {{ product.price }}</strong> in cash when your order is delivered.
+                    </div>
+                    <button class="cod-btn" id="modal-btn-cod" onclick="modalInitiateCOD()">
+                      Confirm Order (Cash on Delivery)
+                    </button>
+                  </div>
+
+                  <!-- Card -->
+                  <label class="method-option" id="modal-opt-card" onclick="modalSelectMethod('card')">
+                    <input type="radio" name="modal_pay_method" value="card">
+                    <div class="method-icon">💳</div>
+                    <div>
+                      <div class="method-name">Debit / Credit Card</div>
+                      <div class="method-desc">Visa, Mastercard</div>
+                    </div>
+                    <div class="method-check"></div>
+                  </label>
+                  <div class="pay-panel" id="modal-panel-card">
+                    <div class="card-form">
+                      <div class="form-group full">
+                        <label>Cardholder name</label>
+                        <input type="text" id="modal-card-name" placeholder="Name on card" autocomplete="cc-name">
+                      </div>
+                      <div class="form-group full">
+                        <label>Card number</label>
+                        <input type="text" id="modal-card-number" placeholder="1234 5678 9012 3456"
+                          maxlength="19" autocomplete="cc-number"
+                          oninput="modalFormatCardNumber(this)">
+                      </div>
+                      <div class="form-row">
+                        <div class="form-group">
+                          <label>Expiry (MM/YY)</label>
+                          <input type="text" id="modal-card-expiry" placeholder="MM/YY"
+                            maxlength="5" autocomplete="cc-exp"
+                            oninput="modalFormatExpiry(this)">
+                        </div>
+                        <div class="form-group">
+                          <label>CVV</label>
+                          <input type="text" id="modal-card-cvv" placeholder="123" maxlength="4" autocomplete="cc-csc">
+                        </div>
+                      </div>
+                      <button type="button" class="btn-primary" id="modal-btn-card" onclick="modalSubmitCard()">
+                        Pay NPR {{ product.price }}
+                      </button>
+                    </div>
+                  </div>
+
+                </div><!-- /method-list -->
+
+                <div class="secure-note">🔒 Payments are processed securely. We never store card details.</div>
+              </div>
+            </div>
+
+          </div><!-- /payment-main -->
+
+          <!-- RIGHT: Order Summary sidebar -->
+          <aside class="order-sidebar">
+            <div class="card">
+              <div class="card-head">
+                <h2>Order Summary</h2>
+              </div>
+              <div class="order-meta">
+                <div class="order-num">#{{ order.order_number|default:"ORD-XXXX" }}</div>
+                <div class="order-buyer">{{ order.guest_name|default:"Guest" }}{% if order.guest_email %} · {{ order.guest_email }}{% endif %}</div>
+              </div>
+              <div class="order-items">
+                {% for item in order.items.all %}
+                <div class="order-item">
+                  {% with img=item.product.get_display_image %}
+                  {% if img %}
+                    <img class="item-img" src="{{ img }}" alt="{{ item.product.name }}" loading="lazy">
+                  {% else %}
+                    <div class="item-img-placeholder">📦</div>
+                  {% endif %}
+                  {% endwith %}
+                  <div class="item-info">
+                    <div class="item-name">{{ item.product.name }}</div>
+                    <div class="item-qty">Qty: {{ item.quantity }}</div>
+                  </div>
+                  <div class="item-price">NPR {{ item.total_price }}</div>
+                </div>
+                {% empty %}
+                <!-- Fallback: show current product when no order items exist -->
+                <div class="order-item">
+                  <div class="item-img-placeholder">📦</div>
+                  <div class="item-info">
+                    <div class="item-name">{{ product.name }}</div>
+                    <div class="item-qty">Qty: 1</div>
+                  </div>
+                  <div class="item-price">NPR {{ product.price }}</div>
+                </div>
+                {% endfor %}
+              </div>
+              <div class="order-totals">
+                <div class="total-row">
+                  <span>Subtotal</span>
+                  <span>NPR {{ product.price }}</span>
+                </div>
+                <div class="total-row">
+                  <span>Shipping</span>
+                  <span>Free</span>
+                </div>
+                <div class="total-row grand divider">
+                  <span>Total</span>
+                  <span>NPR {{ product.price }}</span>
+                </div>
+              </div>
+              <div class="delivery-badge">
+                🚚 Home delivery — Kathmandu
+              </div>
+            </div>
+
+            <div style="margin-top:14px;text-align:center;">
+              <button class="btn-secondary" onclick="closeCartModal()">← Continue Shopping</button>
+            </div>
+          </aside>
+
+        </div><!-- /checkout-wrap -->
+      </div><!-- /cmodal-body -->
+
+    </div><!-- /cart-modal -->
+  </div><!-- /cart-modal-overlay -->
+
+  <!-- Hidden eSewa auto-submit form -->
+  <form id="esewa-auto-form" method="POST" action="" style="display:none;">
+    {% csrf_token %}
+  </form>
+
+  <!-- JS data bridge for modal payment JS (mirrors payment.html) -->
+  <script>
+    var SHOP = {
+      productId:   "{{ product.pk|default:'' }}",
+      quantity:    1,
+      orderNumber: "{{ order.order_number|default:'' }}",
+      total:       "{{ product.price|default:0 }}",
+      csrfToken:   "{{ csrf_token }}",
+      initiateUrl: "{% url 'initiate_payment' %}",
+      successUrl:  "{% url 'order_success' %}",
+    };
+  </script>
+
+  <script>
+    /* ══════════════════════════════════════
+       PRODUCT PAGE FUNCTIONS
+    ══════════════════════════════════════ */
+    function adjustQty(delta) {
+      const input = document.getElementById('qty-display');
+      const max = parseInt(input.max) || 999;
+      let val = parseInt(input.value) || 1;
+      val = Math.min(max, Math.max(1, val + delta));
+      input.value = val;
+      SHOP.quantity = val;
+    }
+
+    function switchOrderTab(mode) {
+      const home   = document.getElementById('panel-home');
+      const pickup = document.getElementById('panel-pickup');
+      const tabHome   = document.getElementById('tab-home');
+      const tabPickup = document.getElementById('tab-pickup');
+      if (mode === 'pickup') {
+        home.style.opacity = '0';
+        setTimeout(() => { home.style.display='none'; pickup.style.display='block'; pickup.style.opacity='0'; setTimeout(()=>{pickup.style.opacity='1';},20); }, 180);
+        tabHome.classList.remove('active'); tabPickup.classList.add('active');
+      } else {
+        pickup.style.opacity = '0';
+        setTimeout(() => { pickup.style.display='none'; home.style.display='block'; home.style.opacity='0'; setTimeout(()=>{home.style.opacity='1';},20); }, 180);
+        tabPickup.classList.remove('active'); tabHome.classList.add('active');
+      }
+    }
+
+    function addToCart() {
+      const btn = document.querySelector('.btn-cart');
+      const orig = btn.innerHTML;
+      btn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" stroke="#fff" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Added!';
+      btn.style.background = 'var(--success)';
+      // Show badge
+      document.getElementById('cartBadge').style.display = 'flex';
+      setTimeout(() => { btn.innerHTML = orig; btn.style.background = ''; }, 1800);
+    }
+
+    function setMainImg(thumbEl, src) {
+      const mainImg = document.getElementById('mainImg');
+      if (mainImg && src) {
+        mainImg.style.opacity = '0';
+        setTimeout(() => { mainImg.src = src; mainImg.style.opacity = '1'; }, 150);
+      }
+      document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
+      thumbEl.classList.add('active');
+    }
+
+    /* ══════════════════════════════════════
+       CART MODAL OPEN / CLOSE
+    ══════════════════════════════════════ */
+    function openCartModal() {
+      const overlay = document.getElementById('cartModalOverlay');
+      overlay.classList.add('open');
+      document.body.style.overflow = 'hidden'; // prevent background scroll
+    }
+
+    function closeCartModal() {
+      const overlay = document.getElementById('cartModalOverlay');
+      overlay.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    // Close on overlay backdrop click (not on the modal itself)
+    function handleOverlayClick(e) {
+      if (e.target === document.getElementById('cartModalOverlay')) {
+        closeCartModal();
+      }
+    }
+
+    // Close on Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeCartModal();
+    });
+
+    /* ══════════════════════════════════════
+       MODAL PAYMENT METHOD SELECTION
+    ══════════════════════════════════════ */
+    function modalSelectMethod(method) {
+      ['esewa','khalti','cod','card'].forEach(function(m) {
+        var opt   = document.getElementById('modal-opt-' + m);
+        var panel = document.getElementById('modal-panel-' + m);
+        if (m === method) {
+          opt.classList.add('active');
+          panel.classList.add('visible');
+        } else {
+          opt.classList.remove('active');
+          panel.classList.remove('visible');
+        }
+      });
+    }
+
+    /* ── Card formatting helpers ── */
+    function modalFormatCardNumber(input) {
+      var v = input.value.replace(/\D/g,'').slice(0,16);
+      input.value = v.replace(/(.{4})/g,'$1 ').trim();
+    }
+    function modalFormatExpiry(input) {
+      var v = input.value.replace(/\D/g,'').slice(0,4);
+      if (v.length >= 3) v = v.slice(0,2) + '/' + v.slice(2);
+      input.value = v;
+    }
+
+    /* ── Spinner helpers ── */
+    function setLoading(btn, label) {
+      btn.disabled = true;
+      btn.innerHTML = '<div class="spinner"></div><span>' + label + '</span>';
+    }
+    function resetBtn(btn, label) {
+      btn.disabled = false;
+      btn.innerHTML = '<span>' + label + '</span>';
+    }
+
+    /* ── AJAX initiate helper ── */
+    function callInitiate(method, onSuccess, onError) {
+      fetch(SHOP.initiateUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': SHOP.csrfToken },
+        body: JSON.stringify({ product_id: SHOP.productId, quantity: parseInt(SHOP.quantity), payment_method: method }),
+      })
+      .then(function(r){ return r.json(); })
+      .then(onSuccess)
+      .catch(onError);
+    }
+
+    /* ── eSewa ── */
+    function modalInitiateEsewa() {
+      var btn = document.getElementById('modal-btn-esewa');
+      setLoading(btn, 'Redirecting to eSewa…');
+      callInitiate('esewa', function(data) {
+        if (!data.success) { alert(data.error || 'eSewa initiation failed.'); resetBtn(btn, 'Pay NPR ' + SHOP.total + ' with eSewa'); return; }
+        var form = document.getElementById('esewa-auto-form');
+        form.action = data.esewa_url; form.innerHTML = '';
+        Object.keys(data.esewa_params).forEach(function(key) {
+          var inp = document.createElement('input'); inp.type='hidden'; inp.name=key; inp.value=data.esewa_params[key]; form.appendChild(inp);
+        });
+        form.submit();
+      }, function() { alert('Network error.'); resetBtn(btn, 'Pay NPR ' + SHOP.total + ' with eSewa'); });
+    }
+
+    /* ── Khalti ── */
+    function modalInitiateKhalti() {
+      var btn = document.getElementById('modal-btn-khalti');
+      setLoading(btn, 'Redirecting to Khalti…');
+      callInitiate('khalti', function(data) {
+        if (!data.success) { alert(data.error || 'Khalti initiation failed.'); resetBtn(btn, 'Pay NPR ' + SHOP.total + ' with Khalti'); return; }
+        if (data.khalti_payment_url) { window.location.href = data.khalti_payment_url; }
+        else { alert('No payment URL returned.'); resetBtn(btn, 'Pay NPR ' + SHOP.total + ' with Khalti'); }
+      }, function() { alert('Network error.'); resetBtn(btn, 'Pay NPR ' + SHOP.total + ' with Khalti'); });
+    }
+
+    /* ── COD ── */
+    function modalInitiateCOD() {
+      var btn = document.getElementById('modal-btn-cod');
+      setLoading(btn, 'Confirming order…');
+      callInitiate('cod', function(data) {
+        if (data.success) { window.location.href = SHOP.successUrl; }
+        else { alert(data.error || 'Could not confirm order.'); resetBtn(btn, 'Confirm Order (Cash on Delivery)'); }
+      }, function() { alert('Network error.'); resetBtn(btn, 'Confirm Order (Cash on Delivery)'); });
+    }
+
+    /* ── Card ── */
+    function modalSubmitCard() {
+      var btn = document.getElementById('modal-btn-card');
+      setLoading(btn, 'Processing payment…');
+      var raw = document.getElementById('modal-card-number').value.replace(/\s/g,'');
+      var body = {
+        product_id: SHOP.productId, quantity: parseInt(SHOP.quantity),
+        card_number: raw,
+        expiry: document.getElementById('modal-card-expiry').value,
+        cvv: document.getElementById('modal-card-cvv').value,
+        cardholder_name: document.getElementById('modal-card-name').value,
+      };
+      fetch('/orders/card-payment/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': SHOP.csrfToken },
+        body: JSON.stringify(body),
+      })
+      .then(function(r){ return r.json(); })
+      .then(function(data) {
+        if (data.success) { window.location.href = SHOP.successUrl; }
+        else { alert(data.error || 'Card payment failed.'); resetBtn(btn, 'Pay NPR ' + SHOP.total); }
+      })
+      .catch(function() { alert('Network error.'); resetBtn(btn, 'Pay NPR ' + SHOP.total); });
+    }
+  </script>
+
+</body>
+</html>

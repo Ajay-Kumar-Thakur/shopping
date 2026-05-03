@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Order Confirmed</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green-deep:  #0d3b2e;
+      --green-mid:   #1a5c43;
+      --green-light: #2e8b62;
+      --green-glow:  #4eca8b;
+      --cream:       #f5f0e8;
+      --cream-dark:  #ede6d6;
+      --gold:        #c9a84c;
+      --text-main:   #0d1f17;
+      --text-soft:   #4a6659;
+    }
+
+    html, body {
+      height: 100%;
+      background-color: var(--cream);
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text-main);
+      overflow-x: hidden;
+    }
+
+    /* ── Animated background ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 10% 20%, rgba(46,139,98,0.13) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 90% 80%, rgba(201,168,76,0.10) 0%, transparent 55%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Floating dots pattern ── */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(46,139,98,0.12) 1px, transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Page layout ── */
+    .page {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: #fff;
+      border: 1px solid var(--cream-dark);
+      border-radius: 24px;
+      padding: 56px 48px 48px;
+      max-width: 520px;
+      width: 100%;
+      text-align: center;
+      box-shadow:
+        0 2px 4px rgba(13,59,46,0.04),
+        0 8px 32px rgba(13,59,46,0.08),
+        0 32px 64px rgba(13,59,46,0.06);
+      animation: cardIn 0.7s cubic-bezier(0.16,1,0.3,1) both;
+    }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(32px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0)    scale(1); }
+    }
+
+    /* ── Check icon ── */
+    .icon-wrap {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 28px;
+      background: linear-gradient(135deg, var(--green-mid), var(--green-light));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      animation: popIn 0.6s cubic-bezier(0.34,1.56,0.64,1) 0.3s both;
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.4); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    .icon-wrap::after {
+      content: '';
+      position: absolute;
+      inset: -6px;
+      border-radius: 50%;
+      border: 2px solid rgba(46,139,98,0.2);
+      animation: ringPulse 2s ease-out 0.9s infinite;
+    }
+
+    @keyframes ringPulse {
+      0%   { opacity: 1; transform: scale(1); }
+      100% { opacity: 0; transform: scale(1.5); }
+    }
+
+    .icon-wrap svg {
+      width: 36px;
+      height: 36px;
+      stroke: #fff;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+      animation: drawCheck 0.5s ease 0.8s both;
+    }
+
+    @keyframes drawCheck {
+      from { stroke-dashoffset: 40; opacity: 0; }
+      to   { stroke-dashoffset: 0;  opacity: 1; }
+    }
+
+    .icon-wrap svg path { stroke-dasharray: 40; }
+
+    /* ── Typography ── */
+    .label {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--green-light);
+      margin-bottom: 10px;
+      animation: fadeUp 0.5s ease 0.5s both;
+    }
+
+    h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 34px;
+      font-weight: 400;
+      line-height: 1.15;
+      color: var(--text-main);
+      margin-bottom: 14px;
+      animation: fadeUp 0.5s ease 0.6s both;
+    }
+
+    h1 em {
+      font-style: italic;
+      color: var(--green-mid);
+    }
+
+    .subtitle {
+      font-size: 15px;
+      font-weight: 300;
+      color: var(--text-soft);
+      line-height: 1.6;
+      margin-bottom: 36px;
+      animation: fadeUp 0.5s ease 0.65s both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Order details strip ── */
+    .details {
+      background: var(--cream);
+      border: 1px solid var(--cream-dark);
+      border-radius: 14px;
+      padding: 20px 24px;
+      margin-bottom: 32px;
+      display: flex;
+      justify-content: space-around;
+      gap: 16px;
+      animation: fadeUp 0.5s ease 0.75s both;
+    }
+
+    .detail-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .detail-item .d-label {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .detail-item .d-value {
+      font-family: 'DM Serif Display', serif;
+      font-size: 16px;
+      color: var(--text-main);
+    }
+
+    .divider-v {
+      width: 1px;
+      background: var(--cream-dark);
+      align-self: stretch;
+    }
+
+    /* ── Buttons ── */
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      animation: fadeUp 0.5s ease 0.85s both;
+    }
+
+    .btn-primary {
+      display: block;
+      padding: 15px 28px;
+      background: linear-gradient(135deg, var(--green-mid) 0%, var(--green-light) 100%);
+      color: #fff;
+      border-radius: 12px;
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      box-shadow: 0 4px 16px rgba(26,92,67,0.28);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(26,92,67,0.35);
+    }
+
+    .btn-secondary {
+      display: block;
+      padding: 14px 28px;
+      background: transparent;
+      color: var(--text-soft);
+      border: 1px solid var(--cream-dark);
+      border-radius: 12px;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 400;
+      transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+    }
+
+    .btn-secondary:hover {
+      background: var(--cream);
+      color: var(--text-main);
+      border-color: #ccc;
+    }
+
+    /* ── Footer note ── */
+    .footer-note {
+      margin-top: 28px;
+      font-size: 12px;
+      color: var(--text-soft);
+      opacity: 0.7;
+      animation: fadeUp 0.5s ease 1s both;
+    }
+
+    .footer-note a {
+      color: var(--green-light);
+      text-decoration: none;
+    }
+
+    /* ── Brand mark ── */
+    .brand {
+      position: absolute;
+      top: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'DM Serif Display', serif;
+      font-size: 18px;
+      color: var(--green-mid);
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+      animation: fadeUp 0.5s ease 0.1s both;
+    }
+
+    @media (max-width: 480px) {
+      .card { padding: 40px 24px 36px; }
+      h1 { font-size: 26px; }
+      .details { flex-direction: column; align-items: center; }
+      .divider-v { width: auto; height: 1px; align-self: stretch; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <div class="brand">MyShop</div>
+
+    <div class="card">
+
+      <div class="icon-wrap">
+        <svg viewBox="0 0 24 24">
+          <path d="M5 13l4 4L19 7"/>
+        </svg>
+      </div>
+
+      <p class="label">Order confirmed</p>
+      <h1>Your order is<br><em>on its way!</em></h1>
+      <p class="subtitle">
+        We've received your order and we're already<br>
+        getting it ready for you. You'll hear from us soon.
+      </p>
+
+      <div class="details">
+        <div class="detail-item">
+          <span class="d-label">Status</span>
+          <span class="d-value">Processing</span>
+        </div>
+        <div class="divider-v"></div>
+        <div class="detail-item">
+          <span class="d-label">Delivery</span>
+          <span class="d-value">3–5 days</span>
+        </div>
+        <div class="divider-v"></div>
+        <div class="detail-item">
+          <span class="d-label">Support</span>
+          <span class="d-value">24 / 7</span>
+        </div>
+      </div>
+
+      <div class="actions">
+        <a href="{% url 'product_list' %}" class="btn-primary">Continue Shopping →</a>
+        <a href="{% url 'product_list' %}" class="btn-secondary">Back to Home</a>
+      </div>
+
+    </div>
+
+    <p class="footer-note">
+      Questions? <a href="mailto:support@myshop.com">Contact support</a> &nbsp;·&nbsp; We're here to help.
+    </p>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,615 @@
+{# ============================================================
+   DROP THIS ENTIRE BLOCK into your product_detail.html
+   REPLACE your existing "Order Form" section and add the
+   payment modal below. Also add the JS at the bottom.
+   ============================================================ #}
+
+{# ── 1. REPLACE the order-card div with this new Add to Cart card ── #}
+
+<div class="order-card" id="addToCartCard">
+    <div class="order-card__header">
+        <svg class="order-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <path d="M16 10a4 4 0 01-8 0"/>
+        </svg>
+        <span class="order-card__title">Add to Cart</span>
+    </div>
+
+    <div style="padding: 16px 20px;">
+        {# Product summary row #}
+        <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 16px; background:#fafaf8; border:1px solid rgba(0,0,0,0.07); border-radius:4px; margin-bottom:16px;">
+            <div>
+                <span style="display:block; font-size:14px; font-weight:600; color:#1a1a1a;">{{ product.name }}</span>
+                <span style="font-size:11px; color:#999; text-transform:uppercase; letter-spacing:0.08em;">per unit</span>
+            </div>
+            <span style="font-family:'Cormorant Garamond',serif; font-size:22px; font-weight:600; color:#1a1a1a;">NPR {{ product.price }}</span>
+        </div>
+
+        {# Quantity #}
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+            <label style="font-size:11px; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; color:#555;">Quantity</label>
+            <div style="display:flex; align-items:center; gap:0; border:1px solid rgba(0,0,0,0.12); border-radius:4px; overflow:hidden;">
+                <button type="button" onclick="adjustQty(-1)" style="width:36px;height:36px;background:#fafaf8;border:none;cursor:pointer;font-size:18px;color:#333;display:flex;align-items:center;justify-content:center;">−</button>
+                <input type="number" id="cart_quantity" value="1" min="1" max="{{ product.stock }}" 
+                       style="width:48px;height:36px;border:none;border-left:1px solid rgba(0,0,0,0.08);border-right:1px solid rgba(0,0,0,0.08);text-align:center;font-family:'Jost',sans-serif;font-size:14px;font-weight:500;color:#1a1a1a;outline:none;">
+                <button type="button" onclick="adjustQty(1)" style="width:36px;height:36px;background:#fafaf8;border:none;cursor:pointer;font-size:18px;color:#333;display:flex;align-items:center;justify-content:center;">+</button>
+            </div>
+        </div>
+
+        {# Stock status #}
+        {% if product.stock > 0 %}
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:16px;">
+            <span style="width:8px;height:8px;background:#22c55e;border-radius:50%;display:inline-block;"></span>
+            <span style="font-size:12px;color:#16a34a;">In Stock — {{ product.stock }} units available</span>
+        </div>
+        {% else %}
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:16px;">
+            <span style="width:8px;height:8px;background:#ef4444;border-radius:50%;display:inline-block;"></span>
+            <span style="font-size:12px;color:#dc2626;">Out of Stock</span>
+        </div>
+        {% endif %}
+
+        {# Add to Cart Button — triggers policy modal #}
+        {% if product.stock > 0 %}
+        <button type="button" onclick="openPolicyModal()" class="atc-btn">
+            <svg style="width:17px;height:17px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+                <line x1="3" y1="6" x2="21" y2="6"/>
+                <path d="M16 10a4 4 0 01-8 0"/>
+            </svg>
+            ADD TO CART
+        </button>
+        <button type="button" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:8px;padding:11px 24px;background:transparent;border:1px solid rgba(0,0,0,0.15);border-radius:4px;font-family:'Jost',sans-serif;font-size:11px;font-weight:600;letter-spacing:0.14em;color:#555;cursor:pointer;">
+            <svg style="width:15px;height:15px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+            Save to Wishlist
+        </button>
+        {% endif %}
+    </div>
+</div>
+
+
+{# ── 2. POLICY + PAYMENT MODAL (place before closing </div> of product-detail-container) ── #}
+
+<div id="paymentModal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.55); backdrop-filter:blur(4px); overflow-y:auto;">
+    <div style="min-height:100%; display:flex; align-items:flex-start; justify-content:center; padding:40px 16px;">
+        <div id="modalBox" style="background:#fff; border-radius:8px; width:100%; max-width:560px; overflow:hidden; box-shadow:0 24px 60px rgba(0,0,0,0.2); animation:modalIn 0.28s cubic-bezier(.16,1,.3,1);">
+            
+            {# ── STEP 1: Store Policy ── #}
+            <div id="step-policy">
+                <div style="padding:20px 24px 16px; border-bottom:1px solid rgba(0,0,0,0.07); display:flex; align-items:center; justify-content:space-between;">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div style="width:32px;height:32px;background:#faf7f0;border:1px solid rgba(184,151,66,0.2);border-radius:6px;display:flex;align-items:center;justify-content:center;">
+                            <svg style="width:17px;height:17px;color:#b89742;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+                        </div>
+                        <div>
+                            <div style="font-size:14px;font-weight:700;color:#1a1a1a;letter-spacing:0.02em;">Store Policies</div>
+                            <div style="font-size:11px;color:#999;">Please review before proceeding</div>
+                        </div>
+                    </div>
+                    <button onclick="closeModal()" style="width:32px;height:32px;background:transparent;border:none;cursor:pointer;color:#999;font-size:20px;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:background 0.15s;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='transparent'">✕</button>
+                </div>
+
+                {# Product line in modal #}
+                <div style="margin:16px 24px; padding:12px 16px; background:#fafaf8; border:1px solid rgba(0,0,0,0.06); border-radius:4px; display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <div style="font-size:13px;font-weight:600;color:#1a1a1a;">{{ product.name }}</div>
+                        <div style="font-size:11px;color:#999;" id="modalQtyLine">Qty: 1</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:#b89742;" id="modalTotal">NPR {{ product.price }}</div>
+                    </div>
+                </div>
+
+                {# Policy tiles #}
+                <div style="padding:0 24px 4px; display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                    <div style="padding:14px;background:#fafaf8;border:1px solid rgba(0,0,0,0.06);border-radius:6px;">
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                            <svg style="width:16px;height:16px;color:#b89742;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                            <span style="font-size:11px;font-weight:700;letter-spacing:0.1em;color:#333;text-transform:uppercase;">Delivery</span>
+                        </div>
+                        <p style="font-size:12px;color:#666;margin:0;line-height:1.5;">Delivered within 3–7 business days. Express delivery available in Kathmandu Valley.</p>
+                    </div>
+                    <div style="padding:14px;background:#fafaf8;border:1px solid rgba(0,0,0,0.06);border-radius:6px;">
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                            <svg style="width:16px;height:16px;color:#b89742;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+                            <span style="font-size:11px;font-weight:700;letter-spacing:0.1em;color:#333;text-transform:uppercase;">Returns</span>
+                        </div>
+                        <p style="font-size:12px;color:#666;margin:0;line-height:1.5;">7-day return policy on defective items. Items must be unused and in original packaging.</p>
+                    </div>
+                    <div style="padding:14px;background:#fafaf8;border:1px solid rgba(0,0,0,0.06);border-radius:6px;">
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                            <svg style="width:16px;height:16px;color:#b89742;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                            <span style="font-size:11px;font-weight:700;letter-spacing:0.1em;color:#333;text-transform:uppercase;">Security</span>
+                        </div>
+                        <p style="font-size:12px;color:#666;margin:0;line-height:1.5;">All transactions secured with 256-bit SSL encryption. Your payment details are never stored.</p>
+                    </div>
+                    <div style="padding:14px;background:#fafaf8;border:1px solid rgba(0,0,0,0.06);border-radius:6px;">
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                            <svg style="width:16px;height:16px;color:#b89742;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013 12.04a19.79 19.79 0 01-3.07-8.67A2 2 0 011.95 1.5h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>
+                            <span style="font-size:11px;font-weight:700;letter-spacing:0.1em;color:#333;text-transform:uppercase;">Support</span>
+                        </div>
+                        <p style="font-size:12px;color:#666;margin:0;line-height:1.5;">Customer support available Mon–Sat, 10am–6pm. Contact us for any order issues.</p>
+                    </div>
+                </div>
+
+                <div style="padding:16px 24px 20px;">
+                    <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;margin-bottom:16px;">
+                        <input type="checkbox" id="policyAgree" onchange="toggleProceedBtn()" style="margin-top:2px;accent-color:#b89742;width:15px;height:15px;cursor:pointer;">
+                        <span style="font-size:12px;color:#555;line-height:1.5;">I have read and agree to the store policies, <a href="#" style="color:#b89742;text-decoration:none;">Terms & Conditions</a>, and <a href="#" style="color:#b89742;text-decoration:none;">Privacy Policy</a>.</span>
+                    </label>
+                    <button id="proceedBtn" onclick="goToPayment()" disabled
+                        style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:14px 24px;background:#ccc;color:#fff;border:none;border-radius:4px;font-family:'Jost',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;cursor:not-allowed;transition:background 0.2s;">
+                        PROCEED TO PAYMENT
+                        <svg style="width:15px;height:15px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            {# ── STEP 2: Payment Method Selection ── #}
+            <div id="step-payment" style="display:none;">
+                <div style="padding:20px 24px 16px; border-bottom:1px solid rgba(0,0,0,0.07); display:flex; align-items:center; justify-content:space-between;">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <button onclick="backToPolicy()" style="background:transparent;border:none;cursor:pointer;color:#888;padding:4px;display:flex;align-items:center;">
+                            <svg style="width:18px;height:18px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                        </button>
+                        <div>
+                            <div style="font-size:14px;font-weight:700;color:#1a1a1a;">Choose Payment</div>
+                            <div style="font-size:11px;color:#999;">Secure checkout</div>
+                        </div>
+                    </div>
+                    <button onclick="closeModal()" style="width:32px;height:32px;background:transparent;border:none;cursor:pointer;color:#999;font-size:20px;display:flex;align-items:center;justify-content:center;border-radius:50%;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='transparent'">✕</button>
+                </div>
+
+                <div style="padding:16px 24px;">
+                    {# Order total summary #}
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#faf7f0;border:1px solid rgba(184,151,66,0.2);border-radius:4px;margin-bottom:16px;">
+                        <span style="font-size:12px;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:0.06em;">Order Total</span>
+                        <span style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:#b89742;" id="payTotal">NPR {{ product.price }}</span>
+                    </div>
+
+                    {# Payment method tiles #}
+                    <div style="display:grid;gap:10px;margin-bottom:16px;">
+                        
+                        {# eSewa #}
+                        <label class="payment-method-tile" style="cursor:pointer;">
+                            <input type="radio" name="paymentMethod" value="esewa" onchange="selectPayMethod(this)" style="display:none;">
+                            <div class="pay-tile-inner" id="tile-esewa">
+                                <div style="display:flex;align-items:center;gap:12px;flex:1;">
+                                    <div style="width:44px;height:30px;background:#60bb46;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                        <span style="color:#fff;font-size:11px;font-weight:800;letter-spacing:-0.5px;">eSewa</span>
+                                    </div>
+                                    <div>
+                                        <div style="font-size:13px;font-weight:600;color:#1a1a1a;">eSewa</div>
+                                        <div style="font-size:11px;color:#888;">Nepal's most popular digital wallet</div>
+                                    </div>
+                                </div>
+                                <div class="pay-check" style="width:20px;height:20px;border:2px solid rgba(0,0,0,0.12);border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.15s;"></div>
+                            </div>
+                        </label>
+
+                        {# Khalti #}
+                        <label class="payment-method-tile" style="cursor:pointer;">
+                            <input type="radio" name="paymentMethod" value="khalti" onchange="selectPayMethod(this)" style="display:none;">
+                            <div class="pay-tile-inner" id="tile-khalti">
+                                <div style="display:flex;align-items:center;gap:12px;flex:1;">
+                                    <div style="width:44px;height:30px;background:#5c2d91;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                        <span style="color:#fff;font-size:11px;font-weight:800;">Khalti</span>
+                                    </div>
+                                    <div>
+                                        <div style="font-size:13px;font-weight:600;color:#1a1a1a;">Khalti</div>
+                                        <div style="font-size:11px;color:#888;">Digital payment & banking</div>
+                                    </div>
+                                </div>
+                                <div class="pay-check" style="width:20px;height:20px;border:2px solid rgba(0,0,0,0.12);border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.15s;"></div>
+                            </div>
+                        </label>
+
+                        {# Card #}
+                        <label class="payment-method-tile" style="cursor:pointer;">
+                            <input type="radio" name="paymentMethod" value="card" onchange="selectPayMethod(this)" style="display:none;">
+                            <div class="pay-tile-inner" id="tile-card">
+                                <div style="display:flex;align-items:center;gap:12px;flex:1;">
+                                    <div style="width:44px;height:30px;background:linear-gradient(135deg,#1a1f71,#00a1e0);border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;gap:3px;">
+                                        <svg style="width:12px;height:9px;color:#fff;" viewBox="0 0 24 18" fill="none" stroke="white" stroke-width="2"><rect x="1" y="1" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="6" x2="23" y2="6"/></svg>
+                                    </div>
+                                    <div>
+                                        <div style="font-size:13px;font-weight:600;color:#1a1a1a;">Credit / Debit Card</div>
+                                        <div style="font-size:11px;color:#888;">Visa, Mastercard, NCHL</div>
+                                    </div>
+                                </div>
+                                <div class="pay-check" style="width:20px;height:20px;border:2px solid rgba(0,0,0,0.12);border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.15s;"></div>
+                            </div>
+                        </label>
+
+                        {# COD #}
+                        <label class="payment-method-tile" style="cursor:pointer;">
+                            <input type="radio" name="paymentMethod" value="cod" onchange="selectPayMethod(this)" style="display:none;">
+                            <div class="pay-tile-inner" id="tile-cod">
+                                <div style="display:flex;align-items:center;gap:12px;flex:1;">
+                                    <div style="width:44px;height:30px;background:#f0fdf4;border:1px solid #86efac;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                        <svg style="width:16px;height:16px;color:#16a34a;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 12a2 2 0 100-4 2 2 0 000 4z" fill="currentColor" stroke="none"/></svg>
+                                    </div>
+                                    <div>
+                                        <div style="font-size:13px;font-weight:600;color:#1a1a1a;">Cash on Delivery</div>
+                                        <div style="font-size:11px;color:#888;">Pay when you receive</div>
+                                    </div>
+                                </div>
+                                <div class="pay-check" style="width:20px;height:20px;border:2px solid rgba(0,0,0,0.12);border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.15s;"></div>
+                            </div>
+                        </label>
+                    </div>
+
+                    {# Card details panel (shown only when card selected) #}
+                    <div id="cardFields" style="display:none; padding:16px; background:#fafaf8; border:1px solid rgba(0,0,0,0.07); border-radius:4px; margin-bottom:16px; animation:fadeIn 0.2s ease;">
+                        <div style="margin-bottom:12px;">
+                            <label style="display:block;font-size:10px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#555;margin-bottom:5px;">Card Number</label>
+                            <input type="text" id="cardNumber" maxlength="19" placeholder="1234 5678 9012 3456" oninput="formatCardNumber(this)"
+                                style="width:100%;padding:10px 14px;border:1px solid rgba(0,0,0,0.12);border-radius:4px;font-size:14px;font-family:'Jost',sans-serif;color:#1a1a1a;background:#fff;outline:none;box-sizing:border-box;transition:border-color 0.2s;"
+                                onfocus="this.style.borderColor='#b89742'" onblur="this.style.borderColor='rgba(0,0,0,0.12)'">
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                            <div>
+                                <label style="display:block;font-size:10px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#555;margin-bottom:5px;">Expiry</label>
+                                <input type="text" id="cardExpiry" maxlength="5" placeholder="MM/YY" oninput="formatExpiry(this)"
+                                    style="width:100%;padding:10px 14px;border:1px solid rgba(0,0,0,0.12);border-radius:4px;font-size:14px;font-family:'Jost',sans-serif;color:#1a1a1a;background:#fff;outline:none;box-sizing:border-box;transition:border-color 0.2s;"
+                                    onfocus="this.style.borderColor='#b89742'" onblur="this.style.borderColor='rgba(0,0,0,0.12)'">
+                            </div>
+                            <div>
+                                <label style="display:block;font-size:10px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#555;margin-bottom:5px;">CVV</label>
+                                <input type="text" id="cardCvv" maxlength="4" placeholder="•••"
+                                    style="width:100%;padding:10px 14px;border:1px solid rgba(0,0,0,0.12);border-radius:4px;font-size:14px;font-family:'Jost',sans-serif;color:#1a1a1a;background:#fff;outline:none;box-sizing:border-box;transition:border-color 0.2s;"
+                                    onfocus="this.style.borderColor='#b89742'" onblur="this.style.borderColor='rgba(0,0,0,0.12)'">
+                            </div>
+                        </div>
+                        <div style="margin-top:12px;">
+                            <label style="display:block;font-size:10px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#555;margin-bottom:5px;">Name on Card</label>
+                            <input type="text" id="cardName" placeholder="Full name as on card"
+                                style="width:100%;padding:10px 14px;border:1px solid rgba(0,0,0,0.12);border-radius:4px;font-size:14px;font-family:'Jost',sans-serif;color:#1a1a1a;background:#fff;outline:none;box-sizing:border-box;transition:border-color 0.2s;"
+                                onfocus="this.style.borderColor='#b89742'" onblur="this.style.borderColor='rgba(0,0,0,0.12)'">
+                        </div>
+                    </div>
+
+                    {# Place Order button #}
+                    <button id="payNowBtn" onclick="processPayment()" disabled
+                        style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:14px 24px;background:#ccc;color:#fff;border:none;border-radius:4px;font-family:'Jost',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;cursor:not-allowed;transition:background 0.2s;">
+                        <svg style="width:15px;height:15px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                        <span id="payBtnLabel">SELECT PAYMENT METHOD</span>
+                    </button>
+
+                    <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:12px;">
+                        <svg style="width:13px;height:13px;color:#999;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                        <span style="font-size:11px;color:#aaa;">256-bit SSL encrypted · PCI DSS compliant</span>
+                    </div>
+                </div>
+            </div>
+
+            {# ── STEP 3: Processing ── #}
+            <div id="step-processing" style="display:none; padding:50px 24px; text-align:center;">
+                <div style="width:60px;height:60px;margin:0 auto 20px;border:3px solid rgba(184,151,66,0.2);border-top-color:#b89742;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
+                <div style="font-size:16px;font-weight:600;color:#1a1a1a;margin-bottom:8px;" id="processingTitle">Processing Payment</div>
+                <div style="font-size:13px;color:#888;" id="processingDesc">Please wait, do not close this window...</div>
+            </div>
+
+            {# ── STEP 4: Success ── #}
+            <div id="step-success" style="display:none; padding:50px 24px; text-align:center;">
+                <div style="width:64px;height:64px;margin:0 auto 20px;background:#f0fdf4;border-radius:50%;display:flex;align-items:center;justify-content:center;animation:popIn 0.4s cubic-bezier(.16,1,.3,1);">
+                    <svg style="width:32px;height:32px;color:#22c55e;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <div style="font-size:18px;font-weight:700;color:#1a1a1a;margin-bottom:8px;">Order Placed!</div>
+                <div style="font-size:13px;color:#666;margin-bottom:6px;" id="successOrderId"></div>
+                <div style="font-size:13px;color:#888;margin-bottom:24px;">You'll receive a confirmation shortly.</div>
+                <button onclick="closeModal(); window.location.reload();" 
+                    style="padding:12px 32px;background:#b89742;color:#fff;border:none;border-radius:4px;font-family:'Jost',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;cursor:pointer;">
+                    CONTINUE SHOPPING
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{# ── 3. STYLES (add to your <style> block or CSS file) ── #}
+<style>
+@keyframes modalIn {
+    from { opacity:0; transform:translateY(24px) scale(0.97); }
+    to   { opacity:1; transform:translateY(0) scale(1); }
+}
+@keyframes fadeIn {
+    from { opacity:0; transform:translateY(-8px); }
+    to   { opacity:1; transform:translateY(0); }
+}
+@keyframes spin {
+    to { transform:rotate(360deg); }
+}
+@keyframes popIn {
+    from { transform:scale(0.6); opacity:0; }
+    to   { transform:scale(1); opacity:1; }
+}
+
+.atc-btn {
+    display:flex; align-items:center; justify-content:center; gap:10px;
+    width:100%; padding:14px 24px;
+    background:#111; color:#fff;
+    border:none; border-radius:4px;
+    font-family:'Jost',sans-serif; font-size:12px; font-weight:600;
+    letter-spacing:0.16em; text-transform:uppercase;
+    cursor:pointer; transition:background 0.2s;
+}
+.atc-btn:hover { background:#333; }
+
+.pay-tile-inner {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 16px;
+    border:1.5px solid rgba(0,0,0,0.09);
+    border-radius:6px;
+    background:#fff;
+    transition:border-color 0.15s, background 0.15s;
+}
+.pay-tile-inner:hover {
+    border-color:rgba(184,151,66,0.4);
+    background:#fffdf5;
+}
+.pay-tile-inner.selected {
+    border-color:#b89742;
+    background:#fffdf5;
+}
+.pay-tile-inner.selected .pay-check {
+    background:#b89742 !important;
+    border-color:#b89742 !important;
+}
+.pay-tile-inner.selected .pay-check::after {
+    content:'✓';
+    color:#fff;
+    font-size:11px;
+    font-weight:700;
+}
+</style>
+
+{# ── 4. JAVASCRIPT (add before </body> or in your script block) ── #}
+<script>
+(function() {
+    'use strict';
+    
+    var UNIT_PRICE = parseFloat('{{ product.price|stringformat:"f" }}') || 0;
+    var selectedPayMethod = null;
+    var PRODUCT_ID = '{{ product.pk }}';
+    var CSRF_TOKEN = '{{ csrf_token }}';
+
+    // ── Quantity ──────────────────────────────────
+    window.adjustQty = function(delta) {
+        var inp = document.getElementById('cart_quantity');
+        var max = parseInt(inp.max) || 99;
+        var val = Math.min(max, Math.max(1, (parseInt(inp.value)||1) + delta));
+        inp.value = val;
+    };
+
+    // ── Modal open/close ──────────────────────────
+    window.openPolicyModal = function() {
+        var qty   = parseInt(document.getElementById('cart_quantity').value) || 1;
+        var total = (UNIT_PRICE * qty).toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2});
+        document.getElementById('modalQtyLine').textContent = 'Qty: ' + qty;
+        document.getElementById('modalTotal').textContent   = 'NPR ' + total;
+        document.getElementById('payTotal').textContent     = 'NPR ' + total;
+        document.getElementById('paymentModal').style.display = '';
+        document.body.style.overflow = 'hidden';
+        showStep('policy');
+        // reset checkbox
+        document.getElementById('policyAgree').checked = false;
+        toggleProceedBtn();
+    };
+
+    window.closeModal = function() {
+        document.getElementById('paymentModal').style.display = 'none';
+        document.body.style.overflow = '';
+        selectedPayMethod = null;
+    };
+
+    // Close on backdrop click
+    document.getElementById('paymentModal').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
+    });
+
+    // ── Step management ───────────────────────────
+    function showStep(name) {
+        ['policy','payment','processing','success'].forEach(function(s) {
+            var el = document.getElementById('step-' + s);
+            if (el) el.style.display = (s === name) ? '' : 'none';
+        });
+    }
+
+    // ── Policy step ───────────────────────────────
+    window.toggleProceedBtn = function() {
+        var btn = document.getElementById('proceedBtn');
+        var chk = document.getElementById('policyAgree').checked;
+        btn.disabled = !chk;
+        btn.style.background = chk ? '#b89742' : '#ccc';
+        btn.style.cursor     = chk ? 'pointer'  : 'not-allowed';
+    };
+
+    window.goToPayment = function() {
+        showStep('payment');
+    };
+
+    window.backToPolicy = function() {
+        showStep('policy');
+    };
+
+    // ── Payment step ──────────────────────────────
+    window.selectPayMethod = function(radio) {
+        selectedPayMethod = radio.value;
+        // Update tile styles
+        ['esewa','khalti','card','cod'].forEach(function(m) {
+            var tile = document.getElementById('tile-' + m);
+            if (tile) tile.classList.toggle('selected', m === selectedPayMethod);
+        });
+        // Show/hide card fields
+        document.getElementById('cardFields').style.display = (selectedPayMethod === 'card') ? '' : 'none';
+        // Enable pay button
+        var btn = document.getElementById('payNowBtn');
+        btn.disabled = false;
+        btn.style.background = '#b89742';
+        btn.style.cursor = 'pointer';
+        var labels = {esewa:'PAY WITH ESEWA', khalti:'PAY WITH KHALTI', card:'PAY WITH CARD', cod:'PLACE ORDER (COD)'};
+        document.getElementById('payBtnLabel').textContent = labels[selectedPayMethod] || 'PLACE ORDER';
+    };
+
+    // ── Card formatting ───────────────────────────
+    window.formatCardNumber = function(input) {
+        var v = input.value.replace(/\D/g,'').substring(0,16);
+        input.value = v.replace(/(.{4})/g,'$1 ').trim();
+    };
+    window.formatExpiry = function(input) {
+        var v = input.value.replace(/\D/g,'');
+        if (v.length >= 2) v = v.substring(0,2) + '/' + v.substring(2,4);
+        input.value = v;
+    };
+
+    // ── Process payment ───────────────────────────
+    window.processPayment = function() {
+        if (!selectedPayMethod) return;
+
+        var qty = parseInt(document.getElementById('cart_quantity').value) || 1;
+
+        if (selectedPayMethod === 'esewa') {
+            initiateEsewa(qty);
+        } else if (selectedPayMethod === 'khalti') {
+            initiateKhalti(qty);
+        } else if (selectedPayMethod === 'cod') {
+            submitCODOrder(qty);
+        } else if (selectedPayMethod === 'card') {
+            submitCardOrder(qty);
+        }
+    };
+
+    // ── eSewa Integration ─────────────────────────
+    function initiateEsewa(qty) {
+        showStep('processing');
+        document.getElementById('processingTitle').textContent = 'Redirecting to eSewa...';
+        document.getElementById('processingDesc').textContent  = 'You will be redirected to eSewa payment gateway.';
+        
+        // First create the order in Django to get an order ID
+        fetch('/orders/initiate/', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json', 'X-CSRFToken': CSRF_TOKEN},
+            body: JSON.stringify({product_id: PRODUCT_ID, quantity: qty, payment_method: 'esewa'})
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.success) {
+                // Submit eSewa form (v2 API)
+                var form = document.createElement('form');
+                form.method = 'POST';
+                form.action = data.esewa_url; // e.g. https://rc-epay.esewa.com.np/api/epay/main/v2/form
+                var fields = data.esewa_params; // {amount, tax_amount, total_amount, transaction_uuid, product_code, ...}
+                Object.keys(fields).forEach(function(k) {
+                    var inp = document.createElement('input');
+                    inp.type = 'hidden'; inp.name = k; inp.value = fields[k];
+                    form.appendChild(inp);
+                });
+                document.body.appendChild(form);
+                form.submit();
+            } else {
+                showError(data.error || 'Could not initiate payment.');
+            }
+        })
+        .catch(function() { showError('Network error. Please try again.'); });
+    }
+
+    // ── Khalti Integration ────────────────────────
+    function initiateKhalti(qty) {
+        showStep('processing');
+        document.getElementById('processingTitle').textContent = 'Connecting to Khalti...';
+        document.getElementById('processingDesc').textContent  = 'Initializing Khalti payment...';
+
+        fetch('/orders/initiate/', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json', 'X-CSRFToken': CSRF_TOKEN},
+            body: JSON.stringify({product_id: PRODUCT_ID, quantity: qty, payment_method: 'khalti'})
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.success && data.khalti_payment_url) {
+                // Khalti v2 returns a payment_url, redirect there
+                window.location.href = data.khalti_payment_url;
+            } else {
+                showError(data.error || 'Could not initiate Khalti payment.');
+            }
+        })
+        .catch(function() { showError('Network error. Please try again.'); });
+    }
+
+    // ── COD ───────────────────────────────────────
+    function submitCODOrder(qty) {
+        showStep('processing');
+        document.getElementById('processingTitle').textContent = 'Placing Your Order...';
+        document.getElementById('processingDesc').textContent  = 'Please wait a moment.';
+
+        fetch('/orders/initiate/', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json', 'X-CSRFToken': CSRF_TOKEN},
+            body: JSON.stringify({product_id: PRODUCT_ID, quantity: qty, payment_method: 'cod'})
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.success) {
+                document.getElementById('successOrderId').textContent = 'Order #' + (data.order_id || '—');
+                showStep('success');
+            } else {
+                showError(data.error || 'Could not place order.');
+            }
+        })
+        .catch(function() { showError('Network error. Please try again.'); });
+    }
+
+    // ── Card ──────────────────────────────────────
+    function submitCardOrder(qty) {
+        var cardNum  = document.getElementById('cardNumber').value.replace(/\s/g,'');
+        var expiry   = document.getElementById('cardExpiry').value;
+        var cvv      = document.getElementById('cardCvv').value;
+        var name     = document.getElementById('cardName').value;
+
+        if (cardNum.length < 15) { alert('Please enter a valid card number.'); return; }
+        if (!expiry.match(/^\d{2}\/\d{2}$/)) { alert('Please enter a valid expiry date (MM/YY).'); return; }
+        if (cvv.length < 3) { alert('Please enter a valid CVV.'); return; }
+        if (!name.trim()) { alert('Please enter the name on card.'); return; }
+
+        showStep('processing');
+        document.getElementById('processingTitle').textContent = 'Processing Card Payment...';
+        document.getElementById('processingDesc').textContent  = 'Securely processing your transaction.';
+
+        // NOTE: In production, NEVER send raw card data to your server.
+        // Use a PCI-compliant tokenization service (Stripe, Adyen, or your bank's JS SDK).
+        // This demo sends to your backend which should tokenize via your payment processor.
+        fetch('/orders/card-payment/', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json', 'X-CSRFToken': CSRF_TOKEN},
+            body: JSON.stringify({
+                product_id: PRODUCT_ID, quantity: qty,
+                card_number: cardNum, expiry: expiry, cvv: cvv, cardholder_name: name
+            })
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.success) {
+                document.getElementById('successOrderId').textContent = 'Order #' + (data.order_id || '—');
+                showStep('success');
+            } else {
+                showError(data.error || 'Card payment failed.');
+            }
+        })
+        .catch(function() { showError('Network error. Please try again.'); });
+    }
+
+    function showError(msg) {
+        showStep('payment');
+        var err = document.createElement('div');
+        err.style.cssText = 'margin:12px 24px;padding:12px 16px;background:#fee2e2;border:1px solid #fca5a5;border-radius:4px;font-size:13px;color:#dc2626;';
+        err.textContent = msg;
+        var existing = document.getElementById('step-payment').querySelector('.pay-error');
+        if (existing) existing.remove();
+        err.className = 'pay-error';
+        document.getElementById('step-payment').insertBefore(err, document.getElementById('step-payment').firstChild.nextSibling);
+    }
+})();
+</script>
