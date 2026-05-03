@@ -103,6 +103,34 @@
       text-decoration: none;
     }
 
+    /* ── Hamburger Button ── */
+    .nav-hamburger {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
+      background: var(--bg-main);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 0;
+      cursor: pointer;
+      width: 40px;
+      height: 40px;
+      flex-shrink: 0;
+    }
+    .nav-hamburger span {
+      display: block;
+      width: 18px;
+      height: 1.5px;
+      background: var(--text-main);
+      border-radius: 1px;
+      transition: transform 0.25s ease, opacity 0.25s ease;
+    }
+    .nav-hamburger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+    .nav-hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .nav-hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
     .nav-links { display: flex; align-items: center; gap: 32px; list-style: none; }
     .nav-links a {
       color: var(--text-soft); text-decoration: none;
@@ -402,7 +430,7 @@
       overflow: hidden;
     }
 
-    /* ── Product Card — NOW an <a> tag, fully clickable ── */
+    /* ── Product Card ── */
     a.card {
       background: var(--card-bg);
       display: flex; flex-direction: column;
@@ -425,7 +453,6 @@
       border-color: var(--accent) transparent transparent transparent;
     }
 
-    /* ── Fixed image height — consistent across all cards ── */
     .card-img-wrap {
       width: 100%;
       height: 200px;
@@ -488,7 +515,6 @@
       display: block; letter-spacing: 0.10em; text-transform: uppercase; margin-top: 3px;
     }
 
-    /* btn-card is now a <span> — pointer-events off since parent <a> handles clicks */
     .btn-card {
       display: inline-flex; align-items: center; gap: 6px;
       padding: 9px 18px; background: transparent;
@@ -497,7 +523,7 @@
       letter-spacing: 0.18em; text-transform: uppercase;
       border-radius: 2px; border: 1px solid var(--border);
       transition: all 0.2s;
-      pointer-events: none;   /* card <a> handles navigation */
+      pointer-events: none;
     }
     a.card:hover .btn-card {
       background: var(--accent);
@@ -595,9 +621,114 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    @media (max-width: 768px) {
+    /* ══════════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════════ */
+
+    /* XS — Mobile portrait (≤480px) */
+    @media (max-width: 480px) {
+      .nav { padding: 12px 16px; }
+      .brand-name { font-size: 22px; }
+
+      /* Show hamburger, hide desktop nav */
+      .nav-hamburger { display: flex; }
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: 100%; left: 0; right: 0;
+        background: rgba(255,255,255,0.98);
+        backdrop-filter: blur(14px);
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        padding: 4px 0;
+        z-index: 200;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      }
+      .nav-links.open { display: flex; }
+      .nav-links li { width: 100%; }
+      .nav-links a {
+        display: block;
+        padding: 13px 20px;
+        font-size: 12px;
+        border-bottom: 1px solid var(--border);
+        letter-spacing: 0.12em;
+      }
+      .nav-links li:last-child a { border-bottom: none; }
+      .nav-cta {
+        margin: 8px 20px 12px;
+        text-align: center;
+        display: block;
+        border-radius: 3px;
+        border: 1px solid var(--border) !important;
+      }
+
+      .hero-slider { height: 65vw; min-height: 300px; max-height: 420px; }
+      .slide-content { padding: 0 16px; }
+      .slide-title { font-size: clamp(26px, 7vw, 32px); }
+      .slide-sub { display: none; }
+      .slide-badge { font-size: 9px; padding: 4px 10px; }
+      .slide-stats { display: none; }
+      .slide-deal { right: 14px; top: 14px; width: 56px; height: 56px; }
+      .slide-deal-pct { font-size: 16px; }
+      .slider-arrow { display: none; }
+      .slider-dots { right: 16px; }
+
+      .categories-inner { padding: 16px; }
+      .section { padding: 36px 16px; }
+      .products-grid { grid-template-columns: 1fr; }
+      .card-img-wrap,
+      .card-img-placeholder { height: 140px; }
+
+      .cta-inner { flex-direction: column; text-align: center; padding: 40px 16px; }
+      .cta-text h2 { font-size: 28px; }
+
+      .footer-inner { flex-direction: column; text-align: center; padding: 28px 16px; gap: 16px; }
+      .footer-links { flex-wrap: wrap; justify-content: center; }
+      .promo-item { padding: 8px 20px; }
+    }
+
+    /* SM — Mobile landscape / small tablet (481px–768px) */
+    @media (min-width: 481px) and (max-width: 768px) {
       .nav { padding: 14px 20px; }
-      .nav-links { display: none; }
+
+      /* Show hamburger, hide desktop nav */
+      .nav-hamburger { display: flex; }
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: 100%; left: 0; right: 0;
+        background: rgba(255,255,255,0.98);
+        backdrop-filter: blur(14px);
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        padding: 4px 0;
+        z-index: 200;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      }
+      .nav-links.open { display: flex; }
+      .nav-links li { width: 100%; }
+      .nav-links a {
+        display: block;
+        padding: 13px 24px;
+        font-size: 12px;
+        border-bottom: 1px solid var(--border);
+        letter-spacing: 0.12em;
+      }
+      .nav-links li:last-child a { border-bottom: none; }
+      .nav-cta {
+        margin: 8px 24px 12px;
+        text-align: center;
+        display: block;
+        border-radius: 3px;
+        border: 1px solid var(--border) !important;
+      }
+
       .hero-slider { height: 70vw; min-height: 340px; max-height: 520px; }
       .slide-content { padding: 0 20px; }
       .slide-title { font-size: 32px; }
@@ -606,23 +737,53 @@
       .slide-deal-pct { font-size: 18px; }
       .slider-arrow { display: none; }
       .slider-dots { right: 20px; }
-      .section { padding: 48px 20px; }
+
       .categories-inner { padding: 20px; }
-      .cta-inner { flex-direction: column; text-align: center; padding: 48px 20px; }
-      .footer-inner { flex-direction: column; text-align: center; padding: 32px 20px; }
-      .footer-links { flex-wrap: wrap; justify-content: center; }
+      .section { padding: 48px 20px; }
       .products-grid { grid-template-columns: repeat(2, 1fr); }
       .card-img-wrap,
       .card-img-placeholder { height: 160px; }
+
+      .cta-inner { flex-direction: column; text-align: center; padding: 48px 20px; }
+      .footer-inner { flex-direction: column; text-align: center; padding: 32px 20px; }
+      .footer-links { flex-wrap: wrap; justify-content: center; }
     }
 
+    /* MD — Tablet portrait (769px–1024px) */
     @media (min-width: 769px) and (max-width: 1024px) {
+      .nav { padding: 16px 32px; }
+      .nav-links { gap: 20px; }
+      .nav-links a { font-size: 11px; }
+
+      .hero-slider { height: 60vw; min-height: 440px; max-height: 620px; }
+      .slide-content { padding: 0 32px; }
+      .slide-stats { left: 32px; bottom: 48px; }
+      .slider-arrow { width: 40px; height: 40px; }
+
+      .categories-inner { padding: 24px 32px; }
+      .section { padding: 60px 32px; }
       .products-grid { grid-template-columns: repeat(2, 1fr); }
+      .card-img-wrap,
+      .card-img-placeholder { height: 180px; }
+
+      .cta-inner { padding: 60px 32px; }
+      .footer-inner { padding: 36px 32px; }
     }
 
+    /* LG — Tablet landscape / small desktop (1025px–1280px) */
     @media (min-width: 1025px) and (max-width: 1280px) {
+      .nav { padding: 16px 40px; }
+      .hero-slider { height: 88vh; min-height: 520px; max-height: 720px; }
+      .section { padding: 72px 40px; }
+      .categories-inner { padding: 28px 40px; }
       .products-grid { grid-template-columns: repeat(3, 1fr); }
+      .card-img-wrap,
+      .card-img-placeholder { height: 190px; }
+      .cta-inner { padding: 72px 40px; }
+      .footer-inner { padding: 40px 40px 32px; }
     }
+
+    /* XL — Full desktop (1281px+) — defaults apply */
   </style>
 </head>
 <body>
@@ -683,7 +844,15 @@
 
   <nav class="nav">
     <a href="{% url 'index' %}" class="brand-name">MyShop</a>
-    <ul class="nav-links">
+
+    <!-- ── Hamburger toggle (mobile only) ── -->
+    <button class="nav-hamburger" id="navHamburger" aria-label="Toggle menu" aria-expanded="false">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <ul class="nav-links" id="navLinks">
       <li><a href="{% url 'index' %}">{% trans "Home" %}</a></li>
       <li><a href="{% url 'product_list' %}">{% trans "Shop" %}</a></li>
       <li><a href="{% url 'faq' %}">{% trans "FAQ" %}</a></li>
@@ -875,7 +1044,6 @@
     </div>
     <div class="products-grid">
       {% for product in featured_products %}
-      {# ── Entire card is now a link — click anywhere to go to product detail ── #}
       <a href="{% url 'product_detail' product.pk %}" class="card">
         {% with img_url=product.get_display_image %}
           {% if img_url %}
@@ -920,7 +1088,6 @@
     </div>
     <div class="products-grid">
       {% for product in latest_products %}
-      {# ── Entire card is now a link — click anywhere to go to product detail ── #}
       <a href="{% url 'product_detail' product.pk %}" class="card">
         {% with img_url=product.get_display_image %}
           {% if img_url %}
@@ -1018,6 +1185,41 @@
   if (promoClose) {
     promoClose.addEventListener('click', () => promoBanner.classList.add('hidden'));
   }
+
+  /* ── Hamburger mobile nav ── */
+  (function () {
+    const hamburger = document.getElementById('navHamburger');
+    const navLinks  = document.getElementById('navLinks');
+    if (!hamburger || !navLinks) return;
+
+    hamburger.addEventListener('click', function (e) {
+      e.stopPropagation();
+      const isOpen = navLinks.classList.toggle('open');
+      hamburger.classList.toggle('open', isOpen);
+      hamburger.setAttribute('aria-expanded', isOpen);
+    });
+
+    /* Close when clicking outside */
+    document.addEventListener('click', function () {
+      navLinks.classList.remove('open');
+      hamburger.classList.remove('open');
+      hamburger.setAttribute('aria-expanded', 'false');
+    });
+
+    /* Prevent clicks inside the menu from closing it */
+    navLinks.addEventListener('click', function (e) {
+      e.stopPropagation();
+    });
+
+    /* Close on Escape key */
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        navLinks.classList.remove('open');
+        hamburger.classList.remove('open');
+        hamburger.setAttribute('aria-expanded', 'false');
+      }
+    });
+  })();
 
   /* ══════════════════════════════════════
      HERO SLIDER LOGIC
