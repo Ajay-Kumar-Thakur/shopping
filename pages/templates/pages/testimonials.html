@@ -70,6 +70,34 @@
       letter-spacing: 0.18em; text-transform: uppercase;
       color: var(--accent); text-decoration: none;
     }
+    
+    /* ADDED: Hamburger button styles */
+    .nav-hamburger {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 0;
+      cursor: pointer;
+      width: 40px;
+      height: 40px;
+      flex-shrink: 0;
+    }
+    .nav-hamburger span {
+      display: block;
+      width: 18px;
+      height: 1.5px;
+      background: var(--text-main);
+      border-radius: 1px;
+      transition: transform 0.25s ease, opacity 0.25s ease;
+    }
+    .nav-hamburger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+    .nav-hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .nav-hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
 
     .nav-links { display: flex; align-items: center; gap: 32px; list-style: none; }
     .nav-links a {
@@ -467,9 +495,38 @@
     }
 
     @media (max-width: 1024px) { .testimonials-grid { columns: 2; } }
+
     @media (max-width: 768px) {
       .nav { padding: 14px 20px; }
-      .nav-links { display: none; }
+      
+      /* ADDED: Mobile nav styles */
+      .nav-hamburger { display: flex; }
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: 100%; left: 0; right: 0;
+        background: rgba(255,255,255,0.98);
+        backdrop-filter: blur(14px);
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        padding: 4px 0;
+        z-index: 200;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      }
+      .nav-links.open { display: flex; }
+      .nav-links li { width: 100%; }
+      .nav-links a {
+        display: block;
+        padding: 13px 24px;
+        font-size: 12px;
+        border-bottom: 1px solid var(--border);
+        letter-spacing: 0.12em;
+      }
+      .nav-links li:last-child a { border-bottom: none; }
+      
       .hero { padding: 52px 20px 40px; }
       main { padding: 40px 20px 60px; }
       .testimonials-grid { columns: 1; }
@@ -490,13 +547,21 @@
   <header>
     <nav class="nav">
       <a href="{% url 'index' %}" class="brand">MyShop</a>
-      <ul class="nav-links">
+      
+      <!-- ADDED: Hamburger button HTML -->
+      <button class="nav-hamburger" id="navHamburger" aria-label="Toggle menu" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <!-- MODIFIED: Added ID to ul -->
+      <ul class="nav-links" id="navLinks">
         <li><a href="{% url 'index' %}">Home</a></li>
         <li><a href="{% url 'product_list' %}">Shop</a></li>
         <li><a href="{% url 'faq' %}">FAQ</a></li>
         <li><a href="{% url 'contact' %}">Contact</a></li>
         <li><a href="{% url 'testimonials' %}" class="active">Testimonials</a></li>
-        
       </ul>
     </nav>
   </header>
@@ -718,6 +783,43 @@
   </footer>
 
   <script>
+    /* ADDED: Hamburger mobile nav logic */
+    (function () {
+      const hamburger = document.getElementById('navHamburger');
+      const navLinks  = document.getElementById('navLinks');
+      if (!hamburger || !navLinks) return;
+
+      hamburger.addEventListener('click', function (e) {
+        e.stopPropagation();
+        const isOpen = navLinks.classList.toggle('open');
+        hamburger.classList.toggle('open', isOpen);
+        hamburger.setAttribute('aria-expanded', isOpen);
+      });
+
+      /* Close when clicking outside */
+      document.addEventListener('click', function () {
+        navLinks.classList.remove('open');
+        hamburger.classList.remove('open');
+        hamburger.setAttribute('aria-expanded', 'false');
+      });
+
+      /* Prevent clicks inside the menu from closing it */
+      navLinks.addEventListener('click', function (e) {
+        e.stopPropagation();
+      });
+
+      /* Close on Escape key */
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+          navLinks.classList.remove('open');
+          hamburger.classList.remove('open');
+          hamburger.setAttribute('aria-expanded', 'false');
+        }
+      });
+    })();
+
+
+    /* --- Star rating logic (unchanged) --- */
     const labels = ['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'];
     let currentRating = 0;
 
