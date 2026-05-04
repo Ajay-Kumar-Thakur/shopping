@@ -1,15 +1,18 @@
+{% load i18n lang_extras %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ LANGUAGE_CODE }}">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Contact Us — MyShop</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <title>{% trans "Contact Us — MyShop" %}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <style>
+    /* ══════════════════════════════════════════════════════════════════
+       BASE STYLES from Homepage (File 1)
+    ══════════════════════════════════════════════════════════════════ */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      /* Clean, professional white/light theme palette */
       --bg-main:     #ffffff;
       --bg-sec:      #f7f9fa;
       --text-main:   #1a1a1a;
@@ -31,13 +34,7 @@
       background: var(--bg-main);
     }
 
-    /* ── Background ── */
-    .bg-layer {
-      position: fixed; inset: 0; z-index: 0;
-      background: var(--bg-main);
-    }
-    
-    /* Subtle standard grid overlay */
+    .bg-layer { position: fixed; inset: 0; z-index: 0; background: var(--bg-main); }
     .bg-layer::after {
       content: '';
       position: absolute; inset: 0;
@@ -47,31 +44,99 @@
       background-size: 48px 48px;
     }
 
-    header, main, footer { position: relative; z-index: 1; }
+    header, section, main, footer { position: relative; z-index: 1; }
 
     /* ── Nav ── */
     header {
-      background: rgba(255, 255, 255, 0.85);
+      background: rgba(255,255,255,0.92);
       backdrop-filter: blur(14px);
       border-bottom: 1px solid var(--border);
       position: sticky; top: 0; z-index: 100;
     }
 
+    /* ── Promo Banner ── */
+    .promo-banner {
+      background: linear-gradient(90deg, #e8000d 0%, #c8000b 40%, #e84000 100%);
+      overflow: hidden; position: relative;
+      border-bottom: 2px solid #a00009;
+    }
+    .promo-banner.hidden { display: none; }
+    .promo-banner:hover .promo-inner { animation-play-state: paused; }
+    .promo-track-wrapper { overflow: hidden; }
+    .promo-inner {
+      display: flex; align-items: center;
+      animation: scroll-banner 22s linear infinite;
+      white-space: nowrap; width: max-content;
+    }
+    @keyframes scroll-banner {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .promo-item {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 10px 32px;
+      border-right: 1px solid rgba(255,255,255,0.15);
+    }
+    .promo-badge {
+      background: #FFD700; color: #8B0000;
+      font-size: 9px; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      padding: 3px 8px; border-radius: 2px; flex-shrink: 0;
+    }
+    .promo-text { color: #ffffff; font-size: 13px; font-weight: 400; letter-spacing: 0.04em; }
+    .promo-highlight { color: #FFD700; font-weight: 600; }
+    .promo-close {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      background: rgba(0,0,0,0.25); border: none; color: white;
+      width: 22px; height: 22px; border-radius: 50%;
+      font-size: 12px; cursor: pointer; line-height: 1; z-index: 5;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .promo-close:hover { background: rgba(0,0,0,0.5); }
+
     .nav {
-      max-width: 1100px; margin: 0 auto;
+      max-width: 1200px; margin: 0 auto;
       padding: 16px 48px;
       display: flex; align-items: center; justify-content: space-between;
     }
 
-    .brand {
+    .brand-name {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 26px; font-weight: 400;
-      letter-spacing: 0.18em; text-transform: uppercase;
-      color: var(--accent); text-decoration: none;
+      font-size: 30px; font-weight: 400;
+      letter-spacing: 0.18em; color: var(--accent);
+      text-transform: uppercase; line-height: 1;
+      text-decoration: none;
     }
 
-    .nav-links { display: flex; align-items: center; gap: 28px; list-style: none; }
+    /* ── Hamburger Button ── */
+    .nav-hamburger {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
+      background: var(--bg-main);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 0;
+      cursor: pointer;
+      width: 40px;
+      height: 40px;
+      flex-shrink: 0;
+    }
+    .nav-hamburger span {
+      display: block;
+      width: 18px;
+      height: 1.5px;
+      background: var(--text-main);
+      border-radius: 1px;
+      transition: transform 0.25s ease, opacity 0.25s ease;
+    }
+    .nav-hamburger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+    .nav-hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .nav-hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
 
+    .nav-links { display: flex; align-items: center; gap: 32px; list-style: none; }
     .nav-links a {
       color: var(--text-soft); text-decoration: none;
       font-size: 12px; font-weight: 500;
@@ -79,6 +144,80 @@
       transition: color 0.2s;
     }
     .nav-links a:hover, .nav-links a.active { color: var(--accent); }
+    .nav-cta {
+      padding: 9px 22px;
+      background: var(--bg-main);
+      color: var(--accent) !important;
+      border-radius: 3px; border: 1px solid var(--border);
+      transition: all 0.2s ease !important;
+    }
+    .nav-cta:hover {
+      background: var(--accent) !important;
+      color: var(--bg-main) !important;
+      border-color: var(--accent);
+    }
+
+    /* ── Footer ── */
+    footer { background: var(--bg-main); border-top: 1px solid var(--border); position: relative; z-index: 1; }
+    .footer-inner {
+      max-width: 1200px; margin: 0 auto; padding: 40px 48px 32px;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;
+    }
+    .footer-brand {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px; font-weight: 600;
+      letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent);
+    }
+    .footer-links { display: flex; gap: 28px; list-style: none; }
+    .footer-links a {
+      font-size: 11px; font-weight: 500;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--text-soft); text-decoration: none; transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--accent); }
+    .footer-copy { font-size: 11px; letter-spacing: 0.10em; color: var(--text-soft); opacity: 0.6; }
+
+    /* ── Language Selector ── */
+    .lang-selector { position: relative; display: inline-flex; align-items: center; }
+    .lang-btn {
+      display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px;
+      background: var(--bg-main); border: 1px solid var(--border); border-radius: 3px;
+      font-family: 'Jost', sans-serif; font-size: 11px; font-weight: 500;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--text-soft); cursor: pointer; transition: all 0.2s;
+    }
+    .lang-btn:hover { color: var(--accent); border-color: var(--accent); }
+    .lang-btn .globe-icon { font-size: 13px; line-height: 1; }
+    .lang-btn .chevron { font-size: 8px; transition: transform 0.2s; }
+    .lang-selector.open .lang-btn .chevron { transform: rotate(180deg); }
+    .lang-dropdown {
+      display: none; position: absolute; top: calc(100% + 8px); right: 0;
+      background: var(--bg-main); border: 1px solid var(--border); border-radius: 4px;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.10); min-width: 180px; z-index: 200; overflow: hidden;
+    }
+    .lang-selector.open .lang-dropdown { display: block; }
+    .lang-dropdown-inner { max-height: 320px; overflow-y: auto; }
+    .lang-dropdown form { display: contents; }
+    .lang-option {
+      display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 16px;
+      background: none; border: none; font-family: 'Jost', sans-serif;
+      font-size: 12px; font-weight: 400; color: var(--text-soft);
+      cursor: pointer; text-align: left; transition: background 0.15s, color 0.15s;
+    }
+    .lang-option:hover { background: var(--bg-sec); color: var(--accent); }
+    .lang-option.active { color: var(--accent); font-weight: 600; }
+    .lang-option .lang-flag { font-size: 16px; line-height: 1; }
+    .lang-option .lang-name { flex: 1; }
+    .lang-option .lang-check { font-size: 11px; color: var(--gold); }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ══════════════════════════════════════════════════════════════════
+       CONTACT PAGE SPECIFIC STYLES (from File 2)
+    ══════════════════════════════════════════════════════════════════ */
 
     /* ── Page hero ── */
     .page-hero {
@@ -94,7 +233,7 @@
       color: var(--text-soft); margin-bottom: 20px;
       animation: fadeUp 0.5s ease 0.1s both;
     }
-    
+
     .page-eyebrow::before, .page-eyebrow::after {
       content: ''; display: inline-block;
       width: 24px; height: 1px;
@@ -212,7 +351,7 @@
       cursor: pointer; margin-top: 8px;
       transition: all 0.22s;
     }
-    
+
     .btn-submit:hover {
       background: var(--accent-hover);
       box-shadow: 0 6px 20px rgba(0,0,0,0.12);
@@ -230,7 +369,6 @@
       position: relative; overflow: hidden;
     }
 
-    /* Subtle corner accent fold */
     .info-card::before {
       content: '';
       position: absolute; top: 0; left: 0;
@@ -270,7 +408,7 @@
       font-weight: 500;
       transition: color 0.2s;
     }
-    
+
     .info-card a:hover { color: var(--text-soft); }
 
     /* Hours table */
@@ -280,181 +418,319 @@
     .hours-table td { padding: 10px 0; font-size: 13px; font-weight: 400; color: var(--text-soft); }
     .hours-table td:last-child { text-align: right; color: var(--text-main); font-weight: 500; }
 
-    /* ── Footer ── */
-    footer {
-      position: relative; z-index: 1;
-      background: var(--bg-main);
-      border-top: 1px solid var(--border);
-    }
-    
-    .footer-inner {
-      max-width: 1100px; margin: 0 auto;
-      padding: 28px 48px;
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    
-    .footer-brand {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 18px; font-weight: 600;
-      letter-spacing: 0.16em; text-transform: uppercase;
-      color: var(--accent);
-    }
-    
-    .footer-copy {
-      font-size: 11px; font-weight: 400;
-      letter-spacing: 0.10em; color: var(--text-soft); opacity: 0.6;
-    }
 
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(16px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
+    /* ══════════════════════════════════════
+       RESPONSIVE STYLES from Homepage (File 1)
+    ══════════════════════════════════════ */
 
-    @media (max-width: 768px) {
-      .nav { padding: 14px 20px; }
-      .nav-links { display: none; }
-      .page-hero { padding: 48px 20px 36px; }
-      .page-hero h1 { font-size: 36px; }
-      main { grid-template-columns: 1fr; gap: 32px; padding: 36px 20px 60px; }
+    /* XS — Mobile portrait (≤480px) */
+    @media (max-width: 480px) {
+      .nav { padding: 12px 16px; }
+      .brand-name { font-size: 22px; }
+
+      .nav-hamburger { display: flex; }
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: 100%; left: 0; right: 0;
+        background: rgba(255,255,255,0.98);
+        backdrop-filter: blur(14px);
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        padding: 4px 0;
+        z-index: 200;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      }
+      .nav-links.open { display: flex; }
+      .nav-links li { width: 100%; }
+      .nav-links a {
+        display: block;
+        padding: 13px 20px;
+        font-size: 12px;
+        border-bottom: 1px solid var(--border);
+        letter-spacing: 0.12em;
+      }
+      .nav-links li:last-child a { border-bottom: none; }
+      .nav-cta {
+        margin: 8px 20px 12px;
+        text-align: center;
+        display: block;
+        border-radius: 3px;
+        border: 1px solid var(--border) !important;
+      }
+
+      .footer-inner { flex-direction: column; text-align: center; padding: 28px 16px; gap: 16px; }
+      .footer-links { flex-wrap: wrap; justify-content: center; }
+      .promo-item { padding: 8px 20px; }
+
+      /* Contact page responsive */
+      .page-hero { padding: 48px 16px 36px; }
+      .page-hero h1 { font-size: 34px; }
+      main { grid-template-columns: 1fr; gap: 32px; padding: 36px 16px 60px; }
       .form-row { grid-template-columns: 1fr; }
-      .footer-inner { flex-direction: column; gap: 8px; text-align: center; padding: 24px 20px; }
+    }
+
+    /* SM — Mobile landscape / small tablet (481px–768px) */
+    @media (min-width: 481px) and (max-width: 768px) {
+      .nav { padding: 14px 20px; }
+
+      .nav-hamburger { display: flex; }
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: 100%; left: 0; right: 0;
+        background: rgba(255,255,255,0.98);
+        backdrop-filter: blur(14px);
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        padding: 4px 0;
+        z-index: 200;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      }
+      .nav-links.open { display: flex; }
+      .nav-links li { width: 100%; }
+      .nav-links a {
+        display: block;
+        padding: 13px 24px;
+        font-size: 12px;
+        border-bottom: 1px solid var(--border);
+        letter-spacing: 0.12em;
+      }
+      .nav-links li:last-child a { border-bottom: none; }
+      .nav-cta {
+        margin: 8px 24px 12px;
+        text-align: center;
+        display: block;
+        border-radius: 3px;
+        border: 1px solid var(--border) !important;
+      }
+      
+      .footer-inner { flex-direction: column; text-align: center; padding: 32px 20px; }
+      .footer-links { flex-wrap: wrap; justify-content: center; }
+
+      /* Contact page responsive */
+      .page-hero { padding: 56px 20px 48px; }
+      .page-hero h1 { font-size: 42px; }
+      main { grid-template-columns: 1fr; gap: 40px; padding: 48px 20px 72px; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+
+    /* MD — Tablet portrait (769px–1024px) */
+    @media (min-width: 769px) and (max-width: 1024px) {
+      .nav { padding: 16px 32px; }
+      .nav-links { gap: 20px; }
+      .nav-links a { font-size: 11px; }
+      .footer-inner { padding: 36px 32px; }
+
+      /* Contact page responsive */
+      main { grid-template-columns: 1fr; gap: 48px; padding: 60px 32px 80px; }
+    }
+
+    /* LG — Tablet landscape / small desktop (1025px–1280px) */
+    @media (min-width: 1025px) and (max-width: 1280px) {
+      .nav { padding: 16px 40px; }
+      .footer-inner { padding: 40px 40px 32px; }
+      
+      /* Contact page responsive */
+      main { padding: 64px 40px 80px; grid-template-columns: 1fr 380px; gap: 48px; }
     }
   </style>
 </head>
 <body>
 
-  <div class="bg-layer"></div>
+<div class="bg-layer"></div>
 
-  <header>
-    <nav class="nav">
-      <a href="{% url 'index' %}" class="brand">MyShop</a>
-      <ul class="nav-links">
-        <li><a href="{% url 'index' %}">Home</a></li>
-        <li><a href="{% url 'product_list' %}">Shop</a></li>
-        <li><a href="{% url 'faq' %}">FAQ</a></li>
-        <li><a href="{% url 'contact' %}">Contact</a></li>
-        <li><a href="{% url 'testimonials' %}">Testimonials</a></li>
-      </ul>
-    </nav>
-  </header>
-
-  <!-- Hero -->
-  <div class="page-hero">
-    <div class="page-eyebrow">Get in Touch</div>
-    <h1>We'd love to <em>hear from you</em></h1>
-    <p>Have a question about your order? We're here to help.</p>
+<!-- ── Nav (from Homepage) ── -->
+<header>
+  <!-- ── Promo Banner ── -->
+  <div class="promo-banner" id="promoBanner">
+    <div class="promo-track-wrapper">
+      <div class="promo-inner">
+        <div class="promo-item"><span class="promo-badge">{% trans "Flash Sale" %}</span><span class="promo-text">{% trans "Deals starting from" %} <span class="promo-highlight">NPR 49</span> — {% trans "Up to" %} <span class="promo-highlight">80% OFF</span></span></div>
+        <div class="promo-item"><span class="promo-badge">{% trans "New" %}</span><span class="promo-text">{% trans "New Collection 2026 — " %}<span class="promo-highlight">{% trans "Shop Now" %} →</span></span></div>
+        <div class="promo-item"><span class="promo-badge">{% trans "Free" %}</span><span class="promo-text"><span class="promo-highlight">{% trans "Free Delivery" %}</span> {% trans "on orders over NPR 500" %}</span></div>
+        {# duplicate for seamless loop #}
+        <div class="promo-item"><span class="promo-badge">{% trans "Flash Sale" %}</span><span class="promo-text">{% trans "Deals starting from" %} <span class="promo-highlight">NPR 49</span> — {% trans "Up to" %} <span class="promo-highlight">80% OFF</span></span></div>
+        <div class="promo-item"><span class="promo-badge">{% trans "New" %}</span><span class="promo-text">{% trans "New Collection 2026 — " %}<span class="promo-highlight">{% trans "Shop Now" %} →</span></span></div>
+        <div class="promo-item"><span class="promo-badge">{% trans "Free" %}</span><span class="promo-text"><span class="promo-highlight">{% trans "Free Delivery" %}</span> {% trans "on orders over NPR 500" %}</span></div>
+      </div>
+    </div>
+    <button class="promo-close" id="promoClose" aria-label="Close">✕</button>
   </div>
 
-  <main>
+  <nav class="nav">
+    <a href="{% url 'index' %}" class="brand-name">MyShop</a>
+    <button class="nav-hamburger" id="navHamburger" aria-label="Toggle menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="{% url 'index' %}">{% trans "Home" %}</a></li>
+      <li><a href="{% url 'product_list' %}">{% trans "Shop" %}</a></li>
+      <li><a href="{% url 'faq' %}">{% trans "FAQ" %}</a></li>
+      <li><a href="{% url 'contact' %}" class="active">{% trans "Contact" %}</a></li>
+      <li><a href="{% url 'testimonials' %}">{% trans "Testimonials" %}</a></li>
+      <li><a href="{% url 'product_list' %}" class="nav-cta">{% trans "Shop All" %}</a></li>
+      <li>{% include "partials/_lang_selector.html" %}</li>
+    </ul>
+  </nav>
+</header>
 
-    <!-- Contact Form -->
-    <div class="form-card">
-      <h2>Send us a Message</h2>
-      <p class="form-sub">Fill out the form below and we'll respond within 24 hours.</p>
+<!-- ── Page Hero (from Contact Page) ── -->
+<div class="page-hero">
+  <div class="page-eyebrow">{% trans "Get in Touch" %}</div>
+  <h1>{% trans "We'd love to" %} <em>{% trans "hear from you" %}</em></h1>
+  <p>{% trans "Have a question about your order? We're here to help." %}</p>
+</div>
 
-      {% if messages %}
-      <ul class="messages">
-        {% for message in messages %}
-        <li class="{% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</li>
-        {% endfor %}
-      </ul>
-      {% endif %}
+<!-- ── Main Content (from Contact Page) ── -->
+<main>
 
-      <form method="post" novalidate>
-        {% csrf_token %}
+  <!-- Contact Form -->
+  <div class="form-card">
+    <h2>{% trans "Send us a Message" %}</h2>
+    <p class="form-sub">{% trans "Fill out the form below and we'll respond within 24 hours." %}</p>
 
-        <div class="form-row">
-          <div class="field">
-            <label>Full Name *</label>
-            {{ form.name }}
-            {% if form.name.errors %}<ul class="errorlist">{% for e in form.name.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
-          </div>
-          <div class="field">
-            <label>Email Address *</label>
-            {{ form.email }}
-            {% if form.email.errors %}<ul class="errorlist">{% for e in form.email.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
-          </div>
-        </div>
+    {% if messages %}
+    <ul class="messages">
+      {% for message in messages %}
+      <li class="{% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
 
+    <form method="post" novalidate>
+      {% csrf_token %}
+
+      <div class="form-row">
         <div class="field">
-          <label>Phone Number</label>
-          {{ form.phone }}
+          <label>{% trans "Full Name" %} *</label>
+          {{ form.name }}
+          {% if form.name.errors %}<ul class="errorlist">{% for e in form.name.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
         </div>
-
         <div class="field">
-          <label>Subject *</label>
-          {{ form.subject }}
-          {% if form.subject.errors %}<ul class="errorlist">{% for e in form.subject.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+          <label>{% trans "Email Address" %} *</label>
+          {{ form.email }}
+          {% if form.email.errors %}<ul class="errorlist">{% for e in form.email.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
         </div>
+      </div>
 
-        <div class="field">
-          <label>Message *</label>
-          {{ form.message }}
-          {% if form.message.errors %}<ul class="errorlist">{% for e in form.message.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
-        </div>
+      <div class="field">
+        <label>{% trans "Phone Number" %}</label>
+        {{ form.phone }}
+      </div>
 
-        <button type="submit" class="btn-submit">Send Message →</button>
-      </form>
+      <div class="field">
+        <label>{% trans "Subject" %} *</label>
+        {{ form.subject }}
+        {% if form.subject.errors %}<ul class="errorlist">{% for e in form.subject.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      </div>
+
+      <div class="field">
+        <label>{% trans "Message" %} *</label>
+        {{ form.message }}
+        {% if form.message.errors %}<ul class="errorlist">{% for e in form.message.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      </div>
+
+      <button type="submit" class="btn-submit">{% trans "Send Message" %} →</button>
+    </form>
+  </div>
+
+  <!-- Info Sidebar -->
+  <div class="info-side">
+    <div class="info-card">
+      <div class="info-card-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+      <h3>{% trans "Visit Our Store" %}</h3>
+      <p>Thamel, Kathmandu<br>Bagmati Province, Nepal</p>
     </div>
-
-    <!-- Info Sidebar -->
-    <div class="info-side">
-
-      <div class="info-card">
-        <div class="info-card-icon">
-          <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        </div>
-        <h3>Visit Our Store</h3>
-        <p>Thamel, Kathmandu<br>Bagmati Province, Nepal</p>
-      </div>
-
-      <div class="info-card">
-        <div class="info-card-icon">
-          <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2A19.79 19.79 0 0112 19a19.5 19.5 0 01-5-3.07A19.79 19.79 0 013.08 11 19.79 19.79 0 011 4.18 2 2 0 012.96 2h3a2 2 0 012 1.72c.13.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L7.09 9.91A16 16 0 0013 15.91l1.27-1.27a2 2 0 012.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0121 17v-.08z"/></svg>
-        </div>
-        <h3>Call or Email</h3>
-        <p>
-          <a href="tel:+9771234567">+977 1 234 567</a><br>
-          <a href="mailto:hello@myshop.com">hello@myshop.com</a>
-        </p>
-      </div>
-
-      <div class="info-card">
-        <div class="info-card-icon">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        </div>
-        <h3>Business Hours</h3>
-        <table class="hours-table">
-          <tr><td>Monday — Friday</td><td>9:00 AM – 6:00 PM</td></tr>
-          <tr><td>Saturday</td><td>10:00 AM – 4:00 PM</td></tr>
-          <tr><td>Sunday</td><td>Closed</td></tr>
-        </table>
-      </div>
-
-      <div class="info-card">
-        <div class="info-card-icon">
-          <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-        </div>
-        <h3>Quick Response</h3>
-        <p>We typically reply within <strong style="color:var(--accent)">2–4 hours</strong> during business hours. For urgent matters, please call us directly.</p>
-      </div>
-
+    <div class="info-card">
+      <div class="info-card-icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2A19.79 19.79 0 0112 19a19.5 19.5 0 01-5-3.07A19.79 19.79 0 013.08 11 19.79 19.79 0 011 4.18 2 2 0 012.96 2h3a2 2 0 012 1.72c.13.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L7.09 9.91A16 16 0 0013 15.91l1.27-1.27a2 2 0 012.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0121 17v-.08z"/></svg></div>
+      <h3>{% trans "Call or Email" %}</h3>
+      <p><a href="tel:+9771234567">+977 1 234 567</a><br><a href="mailto:hello@myshop.com">hello@myshop.com</a></p>
     </div>
-  </main>
-
-  <footer>
-    <div class="footer-inner">
-      <span class="footer-brand">MyShop</span>
-       <ul class="nav-links">
-        <li><a href="{% url 'index' %}">Home</a></li>
-        <li><a href="{% url 'product_list' %}">Shop</a></li>
-        <li><a href="{% url 'faq' %}">FAQ</a></li>
-        <li><a href="{% url 'contact' %}">Contact</a></li>
-        <li><a href="{% url 'testimonials' %}">Testimonials</a></li>
-      </ul>
-      <span class="footer-copy">&copy; 2026 MyShop &nbsp;·&nbsp; All rights reserved</span>
+    <div class="info-card">
+      <div class="info-card-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+      <h3>{% trans "Business Hours" %}</h3>
+      <table class="hours-table">
+        <tr><td>{% trans "Monday — Friday" %}</td><td>9:00 AM – 6:00 PM</td></tr>
+        <tr><td>{% trans "Saturday" %}</td><td>10:00 AM – 4:00 PM</td></tr>
+        <tr><td>{% trans "Sunday" %}</td><td>{% trans "Closed" %}</td></tr>
+      </table>
     </div>
-  </footer>
+  </div>
+</main>
+
+
+<!-- ── Footer (from Homepage) ── -->
+<footer>
+  <div class="footer-inner">
+    <span class="footer-brand">MyShop</span>
+    <ul class="footer-links">
+      <li><a href="{% url 'index' %}">{% trans "Home" %}</a></li>
+      <li><a href="{% url 'product_list' %}">{% trans "Shop" %}</a></li>
+      <li><a href="{% url 'faq' %}">{% trans "FAQ" %}</a></li>
+      <li><a href="{% url 'contact' %}" class="active">{% trans "Contact" %}</a></li>
+      <li><a href="{% url 'testimonials' %}">{% trans "Testimonials" %}</a></li>
+    </ul>
+    {% include "partials/_lang_selector.html" %}
+    <span class="footer-copy">&copy; 2026 MyShop &nbsp;·&nbsp; {% trans "All rights reserved" %}</span>
+  </div>
+</footer>
+
+
+<!-- ── JavaScript (from Homepage) ── -->
+<script>
+  /* ── Language selector ── */
+  document.querySelectorAll('.lang-selector').forEach(sel => {
+    sel.querySelector('.lang-btn').addEventListener('click', e => {
+      e.stopPropagation();
+      document.querySelectorAll('.lang-selector.open').forEach(o => { if (o !== sel) o.classList.remove('open'); });
+      sel.classList.toggle('open');
+    });
+  });
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.lang-selector.open').forEach(s => s.classList.remove('open'));
+  });
+
+  /* ── Promo banner close ── */
+  const promoBanner = document.getElementById('promoBanner');
+  const promoClose  = document.getElementById('promoClose');
+  if (promoBanner && promoClose) {
+    promoClose.addEventListener('click', () => promoBanner.classList.add('hidden'));
+  }
+
+  /* ── Hamburger mobile nav ── */
+  (function () {
+    const hamburger = document.getElementById('navHamburger');
+    const navLinks  = document.getElementById('navLinks');
+    if (!hamburger || !navLinks) return;
+    hamburger.addEventListener('click', function (e) {
+      e.stopPropagation();
+      const isOpen = navLinks.classList.toggle('open');
+      hamburger.classList.toggle('open', isOpen);
+      hamburger.setAttribute('aria-expanded', isOpen);
+    });
+    document.addEventListener('click', function () {
+      navLinks.classList.remove('open');
+      hamburger.classList.remove('open');
+      hamburger.setAttribute('aria-expanded', 'false');
+    });
+    navLinks.addEventListener('click', function (e) { e.stopPropagation(); });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        navLinks.classList.remove('open');
+        hamburger.classList.remove('open');
+        hamburger.setAttribute('aria-expanded', 'false');
+      }
+    });
+  })();
+  // NOTE: The hero slider JS is omitted as the slider markup is not present on this page.
+</script>
 
 </body>
 </html>
