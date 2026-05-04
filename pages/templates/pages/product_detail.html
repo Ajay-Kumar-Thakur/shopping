@@ -80,6 +80,37 @@
     .nav-links a:hover { color: var(--accent); }
 
     .nav-right { display: flex; gap: 16px; align-items: center; }
+
+    /* ── Hamburger Button ── */
+    .nav-hamburger {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
+      background: var(--bg-muted);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0;
+      cursor: pointer;
+      width: 34px;
+      height: 34px;
+      flex-shrink: 0;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .nav-hamburger:hover { border-color: var(--gold); background: #fff; }
+    .nav-hamburger span {
+      display: block;
+      width: 16px;
+      height: 1.5px;
+      background: var(--text);
+      border-radius: 1px;
+      transition: transform 0.25s ease, opacity 0.25s ease;
+    }
+    .nav-hamburger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+    .nav-hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .nav-hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
     .nav-icon-btn {
       background: none; border: none; cursor: pointer;
       color: var(--text-soft); display: flex; align-items: center;
@@ -631,11 +662,6 @@
       padding: 2px 9px; border-radius: 2px; white-space: nowrap;
     }
 
-    @media (max-width: 900px) {
-      .tcard-grid { columns: 1; }
-      .testimonials-inner { padding: 44px 20px 56px; }
-    }
-
     /* ── Pickup Location Panel ── */
     .pickup-location-card {
       background: var(--bg-muted);
@@ -712,14 +738,43 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    /* ── Responsive ── */
+    /* ── Responsive + Mobile Navigation ── */
     @media (max-width: 900px) {
       .page-container { grid-template-columns: 1fr; padding: 20px 20px 72px; gap: 24px; }
       .right-col { position: static; }
       .product-name { font-size: 26px; }
-      .nav { padding: 0 20px; }
+      .nav { padding: 0 20px; position: relative; } /* Ensure dropdown stays inside flow */
       .breadcrumb-bar { padding: 14px 20px 0; }
       .gallery-wrap { height: 280px; }
+      .tcard-grid { columns: 1; }
+      .testimonials-inner { padding: 44px 20px 56px; }
+
+      /* Mobile Nav Overrides */
+      .nav-hamburger { display: flex; }
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: 100%; left: 0; right: 0;
+        background: rgba(255,255,255,0.98);
+        backdrop-filter: blur(16px);
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        padding: 4px 0;
+        z-index: 200;
+        box-shadow: var(--shadow-md);
+      }
+      .nav-links.open { display: flex; }
+      .nav-links li { width: 100%; }
+      .nav-links a {
+        display: block;
+        padding: 14px 20px;
+        font-size: 12px;
+        border-bottom: 1px solid var(--border);
+      }
+      .nav-links li:last-child a { border-bottom: none; }
     }
 
     /* ════════════════════════════════════════════════
@@ -1054,14 +1109,23 @@
   <header>
     <nav class="nav">
       <a href="{% url 'index' %}" class="brand">MyShop</a>
-      <ul class="nav-links">
+      
+      <ul class="nav-links" id="navLinks">
         <li><a href="{% url 'index' %}">Home</a></li>
         <li><a href="{% url 'product_list' %}">Shop</a></li>
         <li><a href="{% url 'faq' %}">FAQ</a></li>
         <li><a href="{% url 'contact' %}">Contact</a></li>
         <li><a href="{% url 'testimonials' %}">Testimonials</a></li>
       </ul>
+      
       <div class="nav-right">
+        <!-- ✦ HAMBURGER ICON (Mobile Only) -->
+        <button class="nav-hamburger" id="navHamburger" aria-label="Toggle menu" aria-expanded="false">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
         <button class="nav-icon-btn" title="Search">
           <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         </button>
@@ -1864,7 +1928,7 @@
                   <div class="item-img-placeholder">📦</div>
                   <div class="item-info">
                     <div class="item-name">{{ product.name }}</div>
-                    <div class="item-qty">Qty: 1</div>
+                    <div class="item-qty">1</div>
                   </div>
                   <div class="item-price">NPR {{ product.price }}</div>
                 </div>
@@ -1919,6 +1983,43 @@
   </script>
 
   <script>
+    /* ══════════════════════════════════════
+       HAMBURGER MENU LOGIC
+    ══════════════════════════════════════ */
+    (function () {
+      const hamburger = document.getElementById('navHamburger');
+      const navLinks  = document.getElementById('navLinks');
+      if (!hamburger || !navLinks) return;
+
+      hamburger.addEventListener('click', function (e) {
+        e.stopPropagation();
+        const isOpen = navLinks.classList.toggle('open');
+        hamburger.classList.toggle('open', isOpen);
+        hamburger.setAttribute('aria-expanded', isOpen);
+      });
+
+      /* Close when clicking outside */
+      document.addEventListener('click', function () {
+        navLinks.classList.remove('open');
+        hamburger.classList.remove('open');
+        hamburger.setAttribute('aria-expanded', 'false');
+      });
+
+      /* Prevent clicks inside the menu from closing it */
+      navLinks.addEventListener('click', function (e) {
+        e.stopPropagation();
+      });
+
+      /* Close on Escape key */
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+          navLinks.classList.remove('open');
+          hamburger.classList.remove('open');
+          hamburger.setAttribute('aria-expanded', 'false');
+        }
+      });
+    })();
+
     /* ══════════════════════════════════════
        PRODUCT PAGE FUNCTIONS
     ══════════════════════════════════════ */
@@ -1988,11 +2089,6 @@
         closeCartModal();
       }
     }
-
-    // Close on Escape key
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') closeCartModal();
-    });
 
     /* ══════════════════════════════════════
        MODAL PAYMENT METHOD SELECTION
